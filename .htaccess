@@ -1,0 +1,9 @@
+AuthUserFile /var/www/restricted/.htpasswd
+AuthGroupFile /dev/null
+AuthName "Acesso Restrito"
+AuthType Basic
+
+<Limit GET POST>
+require valid-user
+</Limit>
+
