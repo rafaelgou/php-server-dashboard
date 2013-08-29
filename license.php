@@ -49,22 +49,12 @@
 
     <div class="container">
         <div class="row">
-        <?php 
 
-ob_start () ;
-phpinfo () ;
-$pinfo = ob_get_contents () ;
-ob_end_clean () ;
-
-$pinfo = ( preg_replace ( '%^.*<body>(.*)</body>.*$%ms', '$1', $pinfo ) )  ;
-$pinfo = str_replace('<table border="0" cellpadding="3" width="600">',  '<table class="table table-bordered table-hover table-condensed">', $pinfo);
-$pinfo = str_replace('<td class="e">',  '<th>', $pinfo);
-
-$pinfo = str_replace('<img',  '<img style="float:left;margin-right: 20px;" ', $pinfo);
-
-
-echo $pinfo;
-?>
+        <div class="page-header">
+           <h1>GPL3 License</small></h1>
+        </div>
+        
+        <pre><?php echo file_get_contents('LICENSE.txt')?></pre>
         </div>
     </div>
 

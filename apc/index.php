@@ -30,7 +30,7 @@ if (file_exists("apc.conf.php")) include("apc.conf.php");
 
 ////////// BEGIN OF DEFAULT CONFIG AREA ///////////////////////////////////////////////////////////
 
-defaults('USE_AUTHENTICATION',1);			// Use (internal) authentication - best choice if 
+defaults('USE_AUTHENTICATION',0);			// Use (internal) authentication - best choice if 
 											// no other authentication is available
 											// If set to 0:
 											//  There will be no further authentication. You 
@@ -39,7 +39,7 @@ defaults('USE_AUTHENTICATION',1);			// Use (internal) authentication - best choi
 											//  You need to change ADMIN_PASSWORD to make
 											//  this work!
 defaults('ADMIN_USERNAME','admin'); 			// Admin Username
-defaults('ADMIN_PASSWORD','mendelphortDO4891');  	// Admin Password - CHANGE THIS TO ENABLE!!!
+defaults('ADMIN_PASSWORD','admin');  	// Admin Password - CHANGE THIS TO ENABLE!!!
 
 // (beckerr) I'm using a clear text password here, because I've no good idea how to let 
 //           users generate a md5 or crypt password in a easy way to fill it in above
