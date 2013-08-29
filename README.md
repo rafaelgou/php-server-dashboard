@@ -64,4 +64,4 @@ chown -R www-data:www-data /WEB_PATH/php-server-dashboard
 
 ## Usage
 
-Browse `http://YOUR-DOMAIN.COM/php-server-dashboard`, input your 
+Browse `http://YOUR-DOMAIN.COM/php-server-dashboard`, input your user/password and it's done!
