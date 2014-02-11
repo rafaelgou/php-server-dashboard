@@ -19,23 +19,21 @@
 
   <body>
 
-    <header class="navbar navbar-default navbar-fixed-top bs-docs-nav" role="banner">
+    <header class="navbar navbar-default navbar-fixed-top" role="banner">
         <div class="navbar-header">
-            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse" style="color: white;">
                 <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+                <i class="fa fa-bars fa-lg fa-white"></i>
             </button>
             <a class="navbar-brand" href="index.php">PHP Server Dashboard</a>
         </div>
         <nav class="collapse navbar-collapse bs-navbar-collapse navbar-right" role="navigation">
             <ul class="nav navbar-nav">
-                    <li><a href="adminer/"><i class="icon-th-list icon-white"></i> Adminer</a></li>
-                    <li><a href="rockmongo/"><i class="icon-th-list icon-white"></i> RockMongo</a></li>
-                    <li><a href="apc/"><i class="icon-signal icon-white"></i> APC</a></li>
-                    <li><a href="phpsysinfo/"><i class="icon-signal icon-white"></i> PHPSysInfo</a></li>
-                    <li><a href="phpinfo.php"><i class="icon-signal icon-white"></i> PHP Info</a></li>
+                    <li><a href="adminer/"><i class="fa fa-th-list fa-white"></i> Adminer</a></li>
+                    <li><a href="rockmongo/"><i class="fa fa-th-list fa-white"></i> RockMongo</a></li>
+                    <li><a href="apc/"><i class="fa fa-signal fa-white"></i> APC</a></li>
+                    <li><a href="phpsysinfo/"><i class="fa fa-signal fa-white"></i> PHPSysInfo</a></li>
+                    <li><a href="phpinfo.php"><i class="fa fa-signal fa-white"></i> PHP Info</a></li>
             </ul>
         </nav>
     </header>
