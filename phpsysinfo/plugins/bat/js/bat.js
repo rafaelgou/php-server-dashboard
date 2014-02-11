@@ -35,7 +35,7 @@ function bat_populate(xml) {
     bat_table.fnClearTable();
 
     $("Plugins Plugin_BAT Bat", xml).each(function bat_getitem(idp) {
-        var DesignCapacity = "", DesignVoltage = "",  BatteryType = "",RemainingCapacity = "", PresentVoltage = "", ChargingState = "", BatteryTemperature = "", BatteryCondition = "";
+        var DesignCapacity = "", DesignVoltage = "",  BatteryType = "",RemainingCapacity = "", PresentVoltage = "", ChargingState = "", BatteryTemperature = "", BatteryCondition = "", Capacity = "";
         DesignCapacity = $(this).attr("DesignCapacity");
         DesignVoltage = $(this).attr("DesignVoltage");
         BatteryType = $(this).attr("BatteryType");
@@ -44,29 +44,30 @@ function bat_populate(xml) {
         ChargingState = $(this).attr("ChargingState");
         BatteryTemperature = $(this).attr("BatteryTemperature");
         BatteryCondition = $(this).attr("BatteryCondition");
+        Capacity = $(this).attr("Capacity");
 
-        if (DesignCapacity == undefined) {
-            if (RemainingCapacity != undefined) bat_table.fnAddData([genlang(4, true, "BAT"), RemainingCapacity, '&nbsp;']);
-        } else if (DesignCapacity == "%") {
-            if (RemainingCapacity != undefined) bat_table.fnAddData([genlang(4, true, "BAT"), createBar(parseInt(RemainingCapacity, 10)), '&nbsp;']);
+        if (Capacity != undefined) {
+            bat_table.fnAddData([genlang(4, true, "BAT"), createBar(parseInt(Capacity, 10)), '&nbsp;']);
+        } else if (DesignCapacity == undefined) {
+            if (RemainingCapacity != undefined) bat_table.fnAddData([genlang(4, true, "BAT"), RemainingCapacity+' mWh', '&nbsp;']);
         } else {
-            bat_table.fnAddData([genlang(3, true, "BAT"), DesignCapacity, '&nbsp;']);
-            if (RemainingCapacity != undefined) bat_table.fnAddData([genlang(4, true, "BAT"), RemainingCapacity, createBar(parseInt(parseInt(RemainingCapacity, 10) / parseInt(DesignCapacity, 10) * 100, 10))]);
+            bat_table.fnAddData([genlang(3, true, "BAT"), DesignCapacity+' mWh', '&nbsp;']);
+            if (RemainingCapacity != undefined) bat_table.fnAddData([genlang(4, true, "BAT"), RemainingCapacity+' mWh', createBar(parseInt(parseInt(RemainingCapacity, 10) / parseInt(DesignCapacity, 10) * 100, 10))]);
         }
         if (ChargingState != undefined) {
             bat_table.fnAddData([genlang(9, true, "BAT"), ChargingState, '&nbsp;']);
         }
         if (DesignVoltage != undefined) {
-            bat_table.fnAddData([genlang(5, true, "BAT"), DesignVoltage, '&nbsp;']);
+            bat_table.fnAddData([genlang(5, true, "BAT"), DesignVoltage+' mV', '&nbsp;']);
         }
         if (PresentVoltage != undefined) {
-            bat_table.fnAddData([genlang(6, true, "BAT"), PresentVoltage, '&nbsp;']);
+            bat_table.fnAddData([genlang(6, true, "BAT"), PresentVoltage+' mV', '&nbsp;']);
         }
         if (BatteryType != undefined) {
             bat_table.fnAddData([genlang(10, true, "BAT"), BatteryType, '&nbsp;']);
         }
         if (BatteryTemperature != undefined) {
-            bat_table.fnAddData([genlang(11, true, "BAT"), BatteryTemperature, '&nbsp;']);
+            bat_table.fnAddData([genlang(11, true, "BAT"), formatTemp(BatteryTemperature, xml), '&nbsp;']);
         }
         if (BatteryCondition != undefined) {
             bat_table.fnAddData([genlang(12, true, "BAT"), BatteryCondition, '&nbsp;']);

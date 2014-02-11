@@ -363,14 +363,16 @@ class XML
         if ((sizeof(unserialize(PSI_MBINFO))>0) || PSI_HDDTEMP) {
             $temp = $mbinfo->addChild('Temperature');
             if (sizeof(unserialize(PSI_MBINFO))>0) {
-                foreach(unserialize(PSI_MBINFO) as $mbinfoclass) {
+                foreach (unserialize(PSI_MBINFO) as $mbinfoclass) {
                     $mbinfo_data = new $mbinfoclass();
                     $mbinfo_detail = $mbinfo_data->getMBInfo();
                     foreach ($mbinfo_detail->getMbTemp() as $dev) {
                         $item = $temp->addChild('Item');
                         $item->addAttribute('Label', $dev->getName());
                         $item->addAttribute('Value', $dev->getValue());
-                        $item->addAttribute('Max', $dev->getMax());
+                        if ($dev->getMax() !== null) {
+                            $item->addAttribute('Max', $dev->getMax());
+                        }
                     }
                 }
             }
@@ -381,7 +383,9 @@ class XML
                     $item = $temp->addChild('Item');
                     $item->addAttribute('Label', $dev->getName());
                     $item->addAttribute('Value', $dev->getValue());
-                    $item->addAttribute('Max', $dev->getMax());
+                    if ($dev->getMax() !== null) {
+                        $item->addAttribute('Max', $dev->getMax());
+                    }
                 }
             }
         }
@@ -391,7 +395,9 @@ class XML
                 $item = $fan->addChild('Item');
                 $item->addAttribute('Label', $dev->getName());
                 $item->addAttribute('Value', $dev->getValue());
-                $item->addAttribute('Min', $dev->getMin());
+                if ($dev->getMin() !== null) {
+                    $item->addAttribute('Min', $dev->getMin());
+                }
             }
         }
         if (sizeof(unserialize(PSI_MBINFO))>0) {
@@ -400,8 +406,23 @@ class XML
                 $item = $volt->addChild('Item');
                 $item->addAttribute('Label', $dev->getName());
                 $item->addAttribute('Value', $dev->getValue());
-                $item->addAttribute('Min', $dev->getMin());
-                $item->addAttribute('Max', $dev->getMax());
+                if ($dev->getMin() !== null) {
+                    $item->addAttribute('Min', $dev->getMin());
+                }
+                if ($dev->getMax() !== null) {
+                    $item->addAttribute('Max', $dev->getMax());
+                }
+            }
+        }
+        if (sizeof(unserialize(PSI_MBINFO))>0) {
+            $volt = $mbinfo->addChild('Power');
+            foreach ($mbinfo_detail->getMbPower() as $dev) {
+                $item = $volt->addChild('Item');
+                $item->addAttribute('Label', $dev->getName());
+                $item->addAttribute('Value', $dev->getValue());
+                if ($dev->getMax() !== null) {
+                    $item->addAttribute('Max', $dev->getMax());
+                }
             }
         }
     }
@@ -445,6 +466,9 @@ class XML
                 }
                 if ($ups->getLoad() !== null) {
                     $item->addAttribute('LoadPercent', $ups->getLoad());
+                }
+                if ($ups->getBatteryDate() !== null) {
+                    $item->addAttribute('BatteryDate', $ups->getBatteryDate());
                 }
                 if ($ups->getBatteryVoltage() !== null) {
                     $item->addAttribute('BatteryVoltage', $ups->getBatteryVoltage());

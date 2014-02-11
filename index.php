@@ -9,7 +9,7 @@
     <div class="container">
         <div class="row">
 
-            <div class="col-lg-3 widget">
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 widget">
                 <div class="well">
                     <a href="adminer/" class="btn btn-primary btn-large btn-block">
                         <i class="icon-th-list icon-white"></i><br/>
@@ -17,13 +17,13 @@
                     </a>
                     <h4>MySQL / PostgreSQL<br/>Database Manager</h4>
                     <p>
-                        version 3.7.1<br/>
+                        version 4.0.3<br/>
                         <a href="http://adminer.org/" target="_blank">app website</a>
                     </p>
                 </div>
             </div>
 
-            <div class="col-lg-3 widget">
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 widget">
                 <div class="well">
                     <a href="rockmongo/" class="btn btn-primary btn-large btn-block">
                         <i class="icon-th-list icon-white"></i><br/>Rockmongo        
@@ -36,7 +36,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 widget">
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 widget">
                 <div class="well">
                     <a href="apc/" class="btn btn-primary btn-large btn-block">
                         <i class="icon-signal icon-white"></i><br/>APC
@@ -49,20 +49,20 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 widget">
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 widget">
                 <div class="well">
                     <a href="phpsysinfo/" class="btn btn-primary btn-large btn-block">
                         <i class="icon-signal icon-white"></i><br/>PHPSysInfo
                     </a>
                     <h4>Server<br/>Info Status</h4>
                     <p>
-                        version 3.1.6<br/>
+                        version 3.1.9<br/>
                         <a href="http://rk4an.github.io/phpsysinfo/" target="_blank">app website</a>
                     </p>
                 </div>
             </div>
 
-            <div class="col-lg-3 widget">
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 widget">
                 <div class="well">
                     <a href="phpinfo/" class="btn btn-primary btn-large btn-block">
                         <i class="icon-signal icon-white"></i><br/>PHP Info

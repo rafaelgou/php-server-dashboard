@@ -78,7 +78,7 @@ class CommonFunctions
         } else {
             array_push($arrPath, $path_parts['dirname']);
             $strProgram = $path_parts['basename'];
-        } 
+        }
         if ( defined('PSI_ADD_PATHS') && is_string(PSI_ADD_PATHS) ) {
             if (preg_match(ARRAY_EXP, PSI_ADD_PATHS)) {
                 $arrPath = array_merge(eval(PSI_ADD_PATHS), $arrPath); // In this order so $addpaths is before $arrPath when looking for a program
@@ -96,16 +96,57 @@ class CommonFunctions
         }
         // If open_basedir defined, fill the $open_basedir array with authorized paths,. (Not tested when no open_basedir restriction)
         if ((bool) ini_get('open_basedir')) {
-            $open_basedir = preg_split('/:/', ini_get('open_basedir'), -1, PREG_SPLIT_NO_EMPTY);
+            if (PSI_OS == 'WINNT') {
+                $open_basedir = preg_split('/;/', ini_get('open_basedir'), -1, PREG_SPLIT_NO_EMPTY);
+            } else {
+                $open_basedir = preg_split('/:/', ini_get('open_basedir'), -1, PREG_SPLIT_NO_EMPTY);
+            }
         }
         foreach ($arrPath as $strPath) {
-            // To avoid "open_basedir restriction in effect" error when testing paths if restriction is enabled
-            if ((isset($open_basedir) && !in_array($strPath, $open_basedir)) ||
-             !(((PSI_OS == 'Android') && ($strPath=='/system/bin')) || is_dir($strPath))) { //is_dir('/system/bin') Android patch
+            // Path with trailing slash
+            if (PSI_OS == 'WINNT') {
+                $strPathS = rtrim($strPath,"\\")."\\";
+            } else {
+                $strPathS = rtrim($strPath,"/")."/";
+            }
+            if (!((PSI_OS == 'Android') && ($strPath=='/system/bin')) //is_dir('/system/bin') Android patch
+               && !is_dir($strPath)) {
                 continue;
             }
+            // To avoid "open_basedir restriction in effect" error when testing paths if restriction is enabled//
+            if (isset($open_basedir)) {
+                $inBaseDir = false;
+                if (PSI_OS == 'WINNT') {
+                    foreach ($open_basedir as $openbasedir) {
+                        if (substr($openbasedir,-1)=="\\") {
+                            $str_Path = $strPathS;
+                        } else {
+                            $str_Path = $strPath;
+                        }
+                        if (stripos($str_Path, $openbasedir) === 0) {
+                            $inBaseDir = true;
+                            break;
+                        }
+                    }
+                } else {
+                    foreach ($open_basedir as $openbasedir) {
+                        if (substr($openbasedir,-1)=="/") {
+                            $str_Path = $strPathS;
+                        } else {
+                            $str_Path = $strPath;
+                        }
+                        if (strpos($str_Path, $openbasedir) === 0) {
+                            $inBaseDir = true;
+                            break;
+                        }
+                    }
+                }
+                if ($inBaseDir == false) {
+                    continue;
+                }
+            }
             if (PSI_OS == 'WINNT') {
-                $strProgrammpath = rtrim($strPath,'\\').'\\'.$strProgram;
+                $strProgrammpath = rtrim($strPath,"\\")."\\".$strProgram;
             } else {
                 $strProgrammpath = rtrim($strPath,"/")."/".$strProgram;
             }
@@ -131,7 +172,7 @@ class CommonFunctions
     public static function executeProgram($strProgramname, $strArgs, &$strBuffer, $booErrorRep = true)
     {
         if (defined('PSI_LOG') && is_string(PSI_LOG) && (strlen(PSI_LOG)>0) && ((substr(PSI_LOG, 0, 1)=="-") || (substr(PSI_LOG, 0, 1)=="+"))) {
-            $out = self::_parse_log_file("Executing: ".$strProgramname.' '.$strArgs);
+            $out = self::_parse_log_file("Executing: ".trim($strProgramname.' '.$strArgs));
             if ($out == false) {
                 if (substr(PSI_LOG, 0, 1)=="-") {
                     $strBuffer = '';
@@ -144,7 +185,7 @@ class CommonFunctions
                 return true;
             }
         }
-        
+
         $strBuffer = '';
         $strError = '';
         $pipes = array();
@@ -175,13 +216,8 @@ class CommonFunctions
             $process = proc_open($strProgram." ".$strArgs, $descriptorspec, $pipes);
         }
         if (is_resource($process)) {
-            if (defined("PSI_MODE_POPEN") && PSI_MODE_POPEN === true) {
-                $pipes[0] = null;
-                $pipes[2] = fopen("/dev/null", "r");
-            }
             self::_timeoutfgets($pipes, $strBuffer, $strError);
             if (defined("PSI_MODE_POPEN") && PSI_MODE_POPEN === true) {
-                fclose($pipes[2]);
                 $return_value = pclose($pipes[1]);
             } else {
                 fclose($pipes[0]);
@@ -201,7 +237,7 @@ class CommonFunctions
         $strError = trim($strError);
         $strBuffer = trim($strBuffer);
         if (defined('PSI_LOG') && is_string(PSI_LOG) && (strlen(PSI_LOG)>0) && (substr(PSI_LOG, 0, 1)!="-") && (substr(PSI_LOG, 0, 1)!="+")) {
-            error_log("---".gmdate('r T')."--- Executing: ".$strProgramname.' '.$strArgs."\n".$strBuffer."\n", 3, PSI_LOG);
+            error_log("---".gmdate('r T')."--- Executing: ".trim($strProgramname.' '.$strArgs)."\n".$strBuffer."\n", 3, PSI_LOG);
         }
         if (! empty($strError)) {
             if ($booErrorRep) {
@@ -241,7 +277,7 @@ class CommonFunctions
                 return true;
             }
         }
-        
+
         $strFile = "";
         $intCurLine = 1;
         $error = Error::singleton();
@@ -335,7 +371,7 @@ class CommonFunctions
      */
     public static function checkForExtensions($arrExt = array())
     {
-        if ((PSI_OS == "Minix") || (PSI_SYSTEM_CODEPAGE == "UTF-8"))
+        if ((strcasecmp(PSI_SYSTEM_CODEPAGE,"UTF-8") == 0) || (strcasecmp(PSI_SYSTEM_CODEPAGE,"CP437") == 0))
             $arrReq = array('simplexml', 'pcre', 'xml', 'dom');
         elseif (PSI_OS == "WINNT")
             $arrReq = array('simplexml', 'pcre', 'xml', 'mbstring', 'dom', 'com_dotnet');
@@ -366,24 +402,48 @@ class CommonFunctions
     /**
      * get the content of stdout/stderr with the option to set a timeout for reading
      *
-     * @param array   $pipes array of file pointers for stdin, stdout, stderr (proc_open())
-     * @param string  &$out  target string for the output message (reference)
-     * @param string  &$err  target string for the error message (reference)
-     * @param integer $sek   timeout value in seconds
+     * @param array   $pipes   array of file pointers for stdin, stdout, stderr (proc_open())
+     * @param string  &$out    target string for the output message (reference)
+     * @param string  &$err    target string for the error message (reference)
+     * @param integer $timeout timeout value in seconds (default value is 30)
      *
      * @return void
      */
-    private static function _timeoutfgets($pipes, &$out, &$err, $sek = 30)
+    private static function _timeoutfgets($pipes, &$out, &$err, $timeout = 30)
     {
-        // fill output string
-        $time = $sek;
-        $w = null;
-        $e = null;
+        $w = NULL;
+        $e = NULL;
 
-        $read = array($pipes[1],$pipes[2]);
-        while (!(feof($pipes[1]) && feof($pipes[2])) && ($n = stream_select($read, $w, $e, $time)) !== false && $n > 0) {
-                $out .= fread($pipes[1], 4096);
-                $err .= fread($pipes[2], 4096);
+        if (defined("PSI_MODE_POPEN") && PSI_MODE_POPEN === true) {
+            $pipe2 = false;
+        } else {
+            $pipe2 = true;
+        }
+        while (!(feof($pipes[1]) || ($pipe2 && feof($pipes[2])))) {
+            if ($pipe2) {
+                $read = array($pipes[1], $pipes[2]);
+            } else {
+                $read = array($pipes[1]);
+            }
+
+            $n = stream_select($read, $w, $e, $timeout);
+
+            if ($n === FALSE) {
+                error_log('stream_select: failed !');
+                break;
+            } elseif ($n === 0) {
+                error_log('stream_select: timeout expired !');
+                break;
+            }
+
+            foreach ($read as $r) {
+                if ($r == $pipes[1]) {
+                    $out .= fread($r, 4096);
+                }
+                if ($pipe2 && ($r == $pipes[2])) {
+                    $err .= fread($r, 4096);
+                }
+            }
         }
     }
 
