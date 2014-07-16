@@ -29,11 +29,20 @@
         </div>
         <nav class="collapse navbar-collapse bs-navbar-collapse navbar-right" role="navigation">
             <ul class="nav navbar-nav">
-                    <li><a href="adminer/"><i class="fa fa-th-list fa-white"></i> Adminer</a></li>
-                    <li><a href="rockmongo/"><i class="fa fa-th-list fa-white"></i> RockMongo</a></li>
-                    <li><a href="apc/"><i class="fa fa-signal fa-white"></i> APC</a></li>
-                    <li><a href="phpsysinfo/"><i class="fa fa-signal fa-white"></i> PHPSysInfo</a></li>
-                    <li><a href="phpinfo.php"><i class="fa fa-signal fa-white"></i> PHP Info</a></li>
+                <li><a href="adminer/"><i class="fa fa-th-list fa-white"></i> Adminer</a></li>
+                <li><a href="rockmongo/"><i class="fa fa-th-list fa-white"></i> RockMongo</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-signal fa-white"></i> PHP Cache <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="apc/">APC</a></li>
+                        <li><a href="opcache/opcache.php">OpCache Status</a></li>
+                        <li><a href="opcache/op.php">Amnuts OPCacheGUI</a></li>
+                        <li><a href="opcache/OpCacheGUI/public">OpCacheGUI</a></li>
+                        <li><a href="opcache/ocp.php">CK-ON</a></li>
+                    </ul>
+                </li>
+                <li><a href="phpsysinfo/"><i class="fa fa-signal fa-white"></i> PHPSysInfo</a></li>
+                <li><a href="phpinfo.php"><i class="fa fa-signal fa-white"></i> PHP Info</a></li>
             </ul>
         </nav>
     </header>
