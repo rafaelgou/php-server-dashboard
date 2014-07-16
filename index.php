@@ -109,6 +109,8 @@
                             echo "<div class=\"alert alert-danger \"><i class=\"fa fa-warning\"></i> extension not instaled!</div>";    
                         }
                         ?><br/>
+                        <a href="http://php.net/manual/pt_BR/book.opcache.php" target="_blank">OpCache website</a>
+                        <br/>
                         <a href="https://github.com/rlerdorf/opcache-status" target="_blank">Rasmus opcache-status website</a>
                         <br/>
                         <a href="https://github.com/amnuts" target="_blank">Amnuts opcache-gui website</a>

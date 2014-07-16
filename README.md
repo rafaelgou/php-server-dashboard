@@ -9,6 +9,11 @@ Tools included:
 - [APC](http://www.php.net/manual/en/book.apc.php): APC Dashboard and default tool.
 - [PHPSysInfo](http://rk4an.github.io/phpsysinfo/): PhpSysInfo: a customizable PHP script that displays information about your system nicely.
 - [PHPInfo](http://www.php.net/manual/en/function.phpinfo.php): Default `phpinfo()` PHP command with nicer interface.
+- [Zend OpCache](http://php.net/manual/pt_BR/book.opcache.php) GUIs:
+    - [Rasmus opcache-status](https://github.com/rlerdorf/opcache-status)
+    - [Amnuts opcache-gui](https://github.com/amnuts)
+    - [OpCache GUI](https://github.com/PeeHaa/OpCacheGUI)
+    - [CK-ON](https://gist.github.com/ck-on/4959032)
 
 ## Screenshot
 
