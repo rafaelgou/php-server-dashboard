@@ -4,6 +4,7 @@ import("lib.mongo.RMongo");
 
 class MServer {
 	private $_mongoName = null;
+	private $_mongoSock = null;
 	private $_mongoHost = "127.0.0.1";
 	private $_mongoPort = 27017;
 	private $_mongoUser = "";
@@ -19,6 +20,9 @@ class MServer {
 	private $_uiHideDbs;
 	private $_uiHideCollections;
 	private $_uiHideSystemCollections = false;
+	
+	private $_docsNatureOrder = false;
+	private $_docsRender = "default";
 	
 	/**
 	 * the server you are operating
@@ -43,6 +47,9 @@ class MServer {
 					break;
 				case "mongo_host":
 					$this->_mongoHost = $value;
+					break;
+				case "mongo_sock":
+					$this->_mongoSock = $value;
 					break;
 				case "mongo_port":
 					$this->_mongoPort = $value;
@@ -85,6 +92,12 @@ class MServer {
 					break;
 				case "ui_hide_system_collections":
 					$this->_uiHideSystemCollections = $value;
+					break;
+				case "docs_nature_order":
+					$this->_docsNatureOrder = $value;
+					break;
+				case "docs_render":
+					$this->_docsRender = $value;
 					break;
 			}
 		}
@@ -224,6 +237,53 @@ class MServer {
 		$this->_uiHideSystemCollections = $bool;
 	}
 	
+
+	/**
+	 * Set whether documents nature order
+	 * 
+	 * @param boolean $bool true or false
+	 * @since 1.1.6
+	 */
+	public function setDocsNatureOrder($bool) {
+		$this->_docsNatureOrder = $bool;
+	}
+	
+	/**
+	 * Whether documents are in nature order
+	 * @return boolean
+	 * @since 1.1.6
+	 */
+	public function docsNatureOrder() {
+		return $this->_docsNatureOrder;
+	}
+	
+	/**
+	 * Set documents highlight render
+	 * 
+	 * @param string $render can be "default" or "plain"
+	 * @since 1.1.6
+	 */
+	public function setDocsRender($render) {
+		$renders = array( "default", "plain" );
+		
+		if (in_array($render, $renders)) {
+			$this->_docsRender = $render;
+		}
+		else {
+			exit("docs_render should be either 'default' or 'plain'");
+		}
+	}
+	
+	/**
+	 * Get documents highlight render
+	 * 
+	 * @return string
+	 * @since 1.1.6
+	 */
+	public function docsRender() {
+		return $this->_docsRender;
+	}
+	
 	public function auth($username, $password, $db = "admin") {
 		if ($db === "") {
 			if (!$this->_mongoAuth && $this->_mongoDb) {
@@ -233,7 +293,13 @@ class MServer {
 				$db = "admin";
 			}
 		}
-		$server = $this->_mongoHost . ":" . $this->_mongoPort;
+		$server = null;
+		if ($this->_mongoSock) {//connect through sock
+			$server = $this->_mongoSock;
+		} 
+		else {//connect through host:port
+			$server = $this->_mongoHost . ":" . $this->_mongoPort;
+		}
 		if (!$this->_mongoPort) {
 			$server = $this->_mongoHost;
 		}
@@ -243,6 +309,11 @@ class MServer {
 				$options["username"] = $username;
 				$options["password"] = $password;
 				$options["db"] = $db;
+			}
+			if($this->_controlAuth && !empty($this->_mongoUser) && !empty($this->_mongoPass) && !empty($this->_mongoDb)) {
+				$options["username"] = $this->_mongoUser;
+				$options["password"] = $this->_mongoPass;
+				$options["db"] = $this->_mongoDb;
 			}
 			$this->_mongo = new RMongo($server, $options);
 			$this->_mongo->setSlaveOkay(true);
@@ -256,7 +327,9 @@ class MServer {
 		}
 		
 		// changing timeout to the new value
-		MongoCursor::$timeout = $this->_mongoTimeout;
+		if (RMongo::compareVersion("1.5.0") < 0) {
+			MongoCursor::$timeout = $this->_mongoTimeout;
+		}
 		
 		//auth by mongo
 		if ($this->_mongoAuth) {
@@ -319,7 +392,12 @@ class MServer {
 	 * @return array
 	 */
 	public function listDbs() {
-		$dbs = $this->_mongo->listDBs();
+		$dbs = array();
+		try {
+			$dbs = $this->_mongo->listDBs();
+		} catch (Exception $e) {
+			$dbs["ok"] = false;
+		}
 		if (!$dbs["ok"]) {
 			$user = MUser::userInSession();
 			
@@ -332,9 +410,7 @@ class MServer {
 				$dbs["databases"][] = array( "name" => $db, "empty" => false, "sizeOnDisk" => 0);
 			}
 		}
-		
 		//@todo: should we show user input databases only?
-		
 		$onlyDbs = $this->uiOnlyDbs();
 		$hideDbs = $this->uiHideDbs();
 		foreach ($dbs["databases"] as $index => $database) {
@@ -355,15 +431,20 @@ class MServer {
 	 * @return string
 	 */
 	public function uri() {
-		$host = $this->_mongoHost . ":" . $this->_mongoPort;
+		$host = null;
+		if ($this->_mongoSock) {
+			$host = $this->_mongoSock;
+		} else {
+			$host = $this->_mongoHost . ":" . $this->_mongoPort;
+		}
 		if ($this->_mongoAuth) {
 			$user = MUser::userInSession();
 			return $user->username() . ":" . $user->password() . "@" . $host;
 		}
 		if (empty($this->_mongoUser)) {
-			return $host;
+			return 'mongodb://' . $host;
 		}
-		return $this->_mongoUser . ":" . $user->_mongoPass . "@" . $host;
+		return 'mongodb://' . $this->_mongoUser . ":" . $user->_mongoPass . "@" . $host;
 	}
 	
 	/**

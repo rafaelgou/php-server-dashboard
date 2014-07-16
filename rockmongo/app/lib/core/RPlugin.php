@@ -1,7 +1,10 @@
 <?php
-
 /**
- * Plugin definiation
+ * Plugin object
+ * 
+ * See details here: http://rockmongo.com/wiki/pluginDevelope
+ *
+ * @author Liu <q@yun4s.cn>
  */
 class RPlugin {
 	private static $_plugins = array();
@@ -16,7 +19,7 @@ class RPlugin {
 	}
 	
 	/**
-	 * read plugin help
+	 * Read plugin help
 	 *
 	 */
 	public function help() {
@@ -28,7 +31,7 @@ class RPlugin {
 	}
 	
 	/**
-	 * register a plugin
+	 * Register a plugin
 	 * 
 	 * @param string $pluginClass plugin class name
 	 * @param integer $priority priority
@@ -45,7 +48,7 @@ class RPlugin {
 	}
 	
 	/**
-	 * call onBefore() method in plugin
+	 * Call onBefore() method in plugin
 	 *
 	 */
 	public static function callBefore() {
@@ -56,7 +59,7 @@ class RPlugin {
 	}
 	
 	/**
-	 * call onAfter() method in plugin
+	 * Call onAfter() method in plugin
 	 *
 	 */
 	public static function callAfter() {
@@ -67,13 +70,14 @@ class RPlugin {
 	}
 	
 	/**
-	 * load all of plugins
+	 * Load all of plugins
 	 *
 	 */
 	public static function load() {
 		if (self::$_loaded) {
 			return;
 		}
+		$plugins = array();
 		require(__ROOT__ . DS . "configs" . DS . "rplugin.php");
 		if (empty($plugins) || !is_array($plugins)) {
 			return;
@@ -95,6 +99,64 @@ class RPlugin {
 		}
 		
 		self::$_loaded = true;
+	}
+	
+	/**
+	 * Get all plugins
+	 * 
+	 * @return array
+	 * @since 1.1.6
+	 */
+	public static function plugins() {
+		$configPlugins = array();
+		$plugins = array();
+		require(__ROOT__ . DS . "configs" . DS . "rplugin.php");
+		if (empty($plugins) || !is_array($plugins)) {
+			return $configPlugins;
+		}
+		foreach ($plugins as $name => $plugin) {
+			$dir = __ROOT__ . DS . "plugins" . DS . $name;
+			if (!is_dir($dir)) {
+				$dir = dirname(dirname(__ROOT__)) . DS . "plugins" . DS . $name;
+			}
+			$pluginConfig = array(
+				"name" => null,	
+				"dir" => $name,
+				"code" => null,
+				"author" => null,
+				"description" => null,
+				"version" => null,	
+				"url" => null,
+				"enabled" => isset($plugin["enabled"]) ? $plugin["enabled"] : false					
+			);
+			
+			$descFile = $dir . "/desc.php";
+			if (is_file($descFile)) {
+				$config = require($descFile);
+				if (isset($config["name"])) {
+					$pluginConfig["name"] = $config["name"];
+				}
+				if (isset($config["code"])) {
+					$pluginConfig["code"] = $config["code"];
+				}
+				if (isset($config["author"])) {
+					$pluginConfig["author"] = $config["author"];
+				}
+				if (isset($config["description"])) {
+					$pluginConfig["description"] = $config["description"];
+				}
+				if (isset($config["version"])) {
+					$pluginConfig["version"] = $config["version"];
+				}
+				if (isset($config["url"])) {
+					$pluginConfig["url"] = $config["url"];
+				}
+			}
+			
+			$configPlugins[] = $pluginConfig;
+		}
+		
+		return $configPlugins;
 	}
 }
 

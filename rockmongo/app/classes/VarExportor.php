@@ -20,7 +20,7 @@ class VarExportor {
 		$this->_db = $db;
 		$this->_var = $var;
 	}
-	
+
 	/**
 	 * Export the variable to a string
 	 *
@@ -37,7 +37,12 @@ class VarExportor {
 		}
 		return $this->_exportJSON();
 	}
-	
+
+	/**
+	 * Export the variable to PHP
+	 *
+	 * @return string
+	 */
 	private function _exportPHP() {
 		$var = $this->_formatVar($this->_var);
 		$string = var_export($var, true);
@@ -48,9 +53,9 @@ class VarExportor {
 
 		return strtr($string, $params);
 	}
-	
+
 	/**
-	 * Enter description here...
+	 * Substr utf-8 version
 	 *
 	 * @param unknown_type $str
 	 * @param unknown_type $from
@@ -63,12 +68,12 @@ class VarExportor {
             mb_substr($str, $from, $len, 'UTF-8') :
 		    preg_replace('#^(?:[\x00-\x7F]|[\xC0-\xFF][\x80-\xBF]+){0,'. $from .'}'.'((?:[\x00-\x7F]|[\xC0-\xFF][\x80-\xBF]+){0,'. $len .'}).*#s','$1', $str);
 	}
-	
+
 	private function _addLabelToArray($array, $prev = "") {
 		$ret = array();
 		$cutLength = 150;
 		foreach ($array as $key => $value) {
-			if (is_string($key) || is_int($key) || is_float($key)) {
+			if (is_string($key)) {
 				$newKey = $prev . ($prev === ""?"":".") . "rockfield." . $key;
 				if (is_string($value) && strlen($value) > $cutLength) {
 					$value = $this->_utf8_substr($value, 0, $cutLength);
@@ -87,8 +92,8 @@ class VarExportor {
 	}
 
 	private function _exportJSON() {
-		if (function_exists('json_encode')) {
-		    $service = 'json_encode';
+		if (function_exists("json_encode")) {
+		    $service = "json_encode";
 		} else {
 		    import("classes.Services_JSON");
 		    $json = new Services_JSON();
@@ -96,17 +101,21 @@ class VarExportor {
 		}
 		$var = $this->_formatVarAsJSON($this->_var, $service);
 		$string = call_user_func($service, $var);
+
+		//Remove "\/" escape
+		$string = str_replace('\/', "/", $string);
+
 		$params = array();
 		foreach ($this->_jsonParams as $index => $value) {
 			$params['"' . $this->_param($index) . '"'] = $value;
 		}
 		return json_unicode_to_utf8(json_format(strtr($string, $params)));
 	}
-	
+
 	private function _param($index) {
-		return "%{MONGO_PARAM_{$index}}"; 
+		return "%{MONGO_PARAM_{$index}}";
 	}
-	
+
 	private function _formatVar($var) {
 		if (is_scalar($var) || is_null($var)) {
 			switch (gettype($var)) {
@@ -115,8 +124,8 @@ class VarExportor {
 		                // producing MongoInt32 to keep type unchanged (Kyryl Bilokurov <kyryl.bilokurov@gmail.com>)
 		 				$this->_paramIndex ++;
 		 				$this->_phpParams[$this->_paramIndex] = 'new MongoInt32(' . $var . ')';
-		            	return $this->_param($this->_paramIndex);      
-					}                          
+		            	return $this->_param($this->_paramIndex);
+					}
 				default:
 					return $var;
 			}
@@ -164,8 +173,8 @@ class VarExportor {
 			}
 		}
 		return $var;
-	}	
-	
+	}
+
 	private function _formatVarAsJSON($var, $jsonService) {
 		if (is_scalar($var) || is_null($var)) {
 			switch (gettype($var)) {

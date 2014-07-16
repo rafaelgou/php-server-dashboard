@@ -41,6 +41,10 @@ $(function() {
 <?php if(isset($message)): ?>
 <p class="error"><?php h($message);?></p>
 <?php endif; ?>
+		
+<p>	
+	[<a href="http://docs.mongodb.org/manual/indexes/" target="_blank">Here is official documents</a>]
+</p>			
 			
 <form method="post">
 <table width="600">

@@ -46,5 +46,4 @@ $MONGO["servers"][$i]["mongo_port"] = "27017";
 $MONGO["servers"][$i]["control_users"]["admin"] = "password";
 $i ++;
 **/
-
 ?>
