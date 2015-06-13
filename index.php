@@ -17,7 +17,7 @@
                     </a>
                     <h4>MySQL / PostgreSQL<br/>Database Manager</h4>
                     <p>
-                        version 4.1.0<br/>
+                        version 4.2.1<br/>
                         <a href="http://adminer.org/" target="_blank">app website</a>
                     </p>
                 </div>
@@ -51,7 +51,7 @@
 
             <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 widget">
                 <div class="well">
-                    <a href="phpinfo/" class="btn btn-primary btn-large btn-block">
+                    <a href="phpinfo.php" class="btn btn-primary btn-large btn-block">
                         <i class="fa fa-signal fa-white"></i><br/>PHP Info
                     </a>
                     <h4>PHP Server Info<br/>Status</h4>
