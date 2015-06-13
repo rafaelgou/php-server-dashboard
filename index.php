@@ -43,7 +43,7 @@
                     </a>
                     <h4>Server<br/>Info Status</h4>
                     <p>
-                        version 3.1.9<br/>
+                        version 3.2.2<br/>
                         <a href="http://rk4an.github.io/phpsysinfo/" target="_blank">app website</a>
                     </p>
                 </div>

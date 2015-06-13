@@ -61,6 +61,13 @@ class System
     private $_distributionIcon = "unknown.png";
 
     /**
+     * detailed Information about the machine name
+     *
+     * @var String
+     */
+    private $_machine = "";
+
+    /**
      * time in sec how long the system is running
      *
      * @var Integer
@@ -107,15 +114,6 @@ class System
     private $_netDevices = array();
 
     /**
-     * array with scsi devices
-     *
-     * @see HWDevice
-     *
-     * @var Array
-     */
-    private $_scsiDevices = array();
-
-    /**
      * array with pci devices
      *
      * @see HWDevice
@@ -123,6 +121,24 @@ class System
      * @var Array
      */
     private $_pciDevices = array();
+
+    /**
+     * array with ide devices
+     *
+     * @see HWDevice
+     *
+     * @var Array
+     */
+    private $_ideDevices = array();
+
+    /**
+     * array with scsi devices
+     *
+     * @see HWDevice
+     *
+     * @var Array
+     */
+    private $_scsiDevices = array();
 
     /**
      * array with usb devices
@@ -134,13 +150,13 @@ class System
     private $_usbDevices = array();
 
     /**
-     * array with ide devices
+     * array with thunderbolt devices
      *
      * @see HWDevice
      *
      * @var Array
      */
-    private $_ideDevices = array();
+    private $_tbDevices = array();
 
     /**
      * array with disk devices
@@ -203,6 +219,13 @@ class System
     private $_swapDevices = array();
 
     /**
+     * array of types of processes
+     *
+     * @var Array
+     */
+    private $_processes = array();
+
+    /**
      * remove duplicate Entries and Count
      *
      * @param Array $arrDev list of HWDevices
@@ -246,7 +269,7 @@ class System
     public function getMemPercentUsed()
     {
         if ($this->_memTotal > 0) {
-            return ceil($this->_memUsed / $this->_memTotal * 100);
+            return round($this->_memUsed / $this->_memTotal * 100);
         } else {
             return 0;
         }
@@ -264,7 +287,7 @@ class System
     {
         if ($this->_memApplication !== null) {
             if (($this->_memApplication > 0) && ($this->_memTotal > 0)) {
-                return ceil($this->_memApplication / $this->_memTotal * 100);
+                return round($this->_memApplication / $this->_memTotal * 100);
             } else {
                 return 0;
             }
@@ -285,7 +308,11 @@ class System
     {
         if ($this->_memCache !== null) {
             if (($this->_memCache > 0) && ($this->_memTotal > 0)) {
-                return ceil($this->_memCache / $this->_memTotal * 100);
+                if (($this->_memApplication !== null) && ($this->_memApplication > 0)) {
+                    return round(($this->_memCache + $this->_memApplication) / $this->_memTotal * 100) - $this->getMemPercentApplication();
+                } else {
+                    return round($this->_memCache / $this->_memTotal * 100);
+                }
             } else {
                 return 0;
             }
@@ -306,7 +333,17 @@ class System
     {
         if ($this->_memBuffer !== null) {
             if (($this->_memBuffer > 0) && ($this->_memTotal > 0)) {
-                return ceil($this->_memBuffer / $this->_memTotal * 100);
+                if (($this->_memCache !== null) && ($this->_memCache > 0)) {
+                    if (($this->_memApplication !== null) && ($this->_memApplication > 0)) {
+                        return round(($this->_memBuffer + $this->_memApplication + $this->_memCache) / $this->_memTotal * 100) - $this->getMemPercentApplication() - $this->getMemPercentCache();
+                    } else {
+                        return round(($this->_memBuffer + $this->_memCache) / $this->_memTotal * 100) - $this->getMemPercentCache();
+                    }
+                } elseif (($this->_memApplication !== null) && ($this->_memApplication > 0)) {
+                    return round(($this->_memBuffer + $this->_memApplication) / $this->_memTotal * 100) - $this->getMemPercentApplication();
+                } else {
+                    return round($this->_memBuffer / $this->_memTotal * 100);
+                }
             } else {
                 return 0;
             }
@@ -393,7 +430,7 @@ class System
     {
         if ($this->getSwapTotal() !== null) {
             if ($this->getSwapTotal() > 0) {
-                return ceil($this->getSwapUsed() / $this->getSwapTotal() * 100);
+                return round($this->getSwapUsed() / $this->getSwapTotal() * 100);
             } else {
                 return 0;
             }
@@ -585,6 +622,32 @@ class System
     }
 
     /**
+     * Returns $_machine.
+     *
+     * @see System::$_machine
+     *
+     * @return String
+     */
+    public function getMachine()
+    {
+        return $this->_machine;
+    }
+
+    /**
+     * Sets $_machine.
+     *
+     * @param Interger $machine machine
+     *
+     * @see System::$_machine
+     *
+     * @return Void
+     */
+    public function setMachine($machine)
+    {
+        $this->_machine = $machine;
+    }
+
+    /**
      * Returns $_uptime.
      *
      * @see System::$_uptime
@@ -664,33 +727,6 @@ class System
     }
 
     /**
-     * Returns $_pciDevices.
-     *
-     * @see System::$_pciDevices
-     *
-     * @return Array
-     */
-    public function getPciDevices()
-    {
-        return $this->_pciDevices;
-    }
-
-    /**
-     * Sets $_pciDevices.
-     *
-     * @param HWDevice $pciDevices pci device
-     *
-     * @see System::$_pciDevices
-     * @see HWDevice
-     *
-     * @return Void
-     */
-    public function setPciDevices($pciDevices)
-    {
-        array_push($this->_pciDevices, $pciDevices);
-    }
-
-    /**
      * Returns $_netDevices.
      *
      * @see System::$_netDevices
@@ -715,6 +751,33 @@ class System
     public function setNetDevices($netDevices)
     {
         array_push($this->_netDevices, $netDevices);
+    }
+
+    /**
+     * Returns $_pciDevices.
+     *
+     * @see System::$_pciDevices
+     *
+     * @return Array
+     */
+    public function getPciDevices()
+    {
+        return $this->_pciDevices;
+    }
+
+    /**
+     * Sets $_pciDevices.
+     *
+     * @param HWDevice $pciDevices pci device
+     *
+     * @see System::$_pciDevices
+     * @see HWDevice
+     *
+     * @return Void
+     */
+    public function setPciDevices($pciDevices)
+    {
+        array_push($this->_pciDevices, $pciDevices);
     }
 
     /**
@@ -796,6 +859,33 @@ class System
     public function setUsbDevices($usbDevices)
     {
         array_push($this->_usbDevices, $usbDevices);
+    }
+
+    /**
+     * Returns $_tbDevices.
+     *
+     * @see System::$_tbDevices
+     *
+     * @return Array
+     */
+    public function getTbDevices()
+    {
+        return $this->_tbDevices;
+    }
+
+    /**
+     * Sets $_tbDevices.
+     *
+     * @param HWDevice $tbDevices thunderbolt device
+     *
+     * @see System::$_tbDevices
+     * @see HWDevice
+     *
+     * @return Void
+     */
+    public function setTbDevices($tbDevices)
+    {
+        array_push($this->_tbDevices, $tbDevices);
     }
 
     /**
@@ -1006,5 +1096,36 @@ class System
     public function setSwapDevices($swapDevices)
     {
         array_push($this->_swapDevices, $swapDevices);
+    }
+
+    /**
+     * Returns $_processes.
+     *
+     * @see System::$_processes
+     *
+     * @return Array
+     */
+    public function getProcesses()
+    {
+        return $this->_processes;
+    }
+
+    /**
+     * Sets $_proceses.
+     *
+     * @param $processes array of types of processes
+     *
+     * @see System::$_processes
+     *
+     * @return Void
+     */
+    public function setProcesses($processes)
+    {
+        $this->_processes = $processes;
+/*
+        foreach ($processes as $proc_type=>$proc_count) {
+            $this->_processes[$proc_type] = $proc_count;
+        }
+*/
     }
 }

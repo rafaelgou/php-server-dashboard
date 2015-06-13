@@ -3,6 +3,124 @@ Changelog of phpSysInfo
 
 http://phpsysinfo.sourceforge.net/
 
+phpSysInfo 3.2.2
+----------------
+ - [UPD] bootstrap 3.3.4
+
+ - [NEW] Thunderbolt (TB) devices list on Darwin
+
+ - [ADD] cleansyn template
+ - [ADD] PS plugin - support for Android
+ - [ADD] PS plugin - SHOW_KTHREADD_EXPANDED option
+ - [ADD] Qubes and HandyLinux to detected distros
+
+ - [FIX] PS plugin - fixed display of the processes tree
+
+phpSysInfo 3.2.1
+----------------
+ - [UPD] bootstrap 3.3.2
+
+ - [NEW] REFRESH parameter also for frontend "bootstrap"
+
+ - [ADD] pfSense to detected distros
+
+ - [FIX] Percentage memory usage
+
+phpSysInfo 3.2.0
+----------------
+ - [NEW] Frontend "bootstrap" with Bootstrap3 and Transparency (JSON)
+
+ - [ADD] Catalan Translation ca.xml
+ - [ADD] Mer (core of Sailfish OS) and Tizen to detected distros
+ - [ADD] ThermalZone sensor support for Linux and Android
+ - [ADD] Temperature, voltage and current sensor for Banana Pi
+
+ - [UPD] German Translation de.xml
+
+phpSysInfo 3.1.17
+----------------
+
+ - [UPD] BAT plugin - capacity unit, cycle count, FreeBSD support
+ - [UPD] Brazilian Portuguese Translation pt-br.xml
+
+ - [ADD] Show the number of processes on Haiku
+ - [ADD] ThermalZone sensor support for WinNT
+ - [ADD] Tanglu to detected distros
+ - [ADD] Android and OS X version name
+
+ - [FIX] Fixed display of treetables
+
+phpSysInfo 3.1.16
+----------------
+
+ - [ADD] Show the number of processes
+ - [ADD] Lunar and 4MLinux to detected distros
+
+phpSysInfo 3.1.15
+----------------
+
+ - [ADD] CoreOS and Pisi Linux to detected distros
+ - [ADD] pmset - UPS support on Darwin (thanks to pelletierr)
+ - [ADD] lspci support on Darwin
+ - [ADD] SHOW_CPULIST_EXPANDED option
+ - [ADD] lxc/docker detection on Linux
+ - [ADD] ability to hide all disks and all network interfaces
+
+ - [FIX] Small CSS fix
+
+ - [UPD] Memory informations on Darwin systems
+ - [UPD] BAT plugin - Darwin support
+
+phpSysInfo 3.1.14
+----------------
+
+ - [ADD] FreeIPMI sensor program support
+ - [ADD] IPMIutil sensor program support
+ - [ADD] PowerSoftPlus (EVER) UPS program support
+ - [ADD] Line frequency for the UPS info
+ - [ADD] SENSOR_EVENTS option - show events of sensors
+ - [ADD] HIDE_RAID_DEVICES option for plugins MDStatus and DMRaid - list of RAID devices to hide
+ - [ADD] idash template
+
+phpSysInfo 3.1.13
+----------------
+
+ - [UPD] jQuery 2.1.1 and jQuery 1.11.1
+ - [UPD] Romanian Translation ro.xml
+
+ - [ADD] SHOW_CPUINFO_EXPANDED option
+ - [ADD] Machine detection on WINNT, Linux, Android and Darwin systems
+
+phpSysInfo 3.1.12
+----------------
+
+ - [ADD] GoboLinux, UltimateEdition, BOSS, Canaima, VortexBox, KaOS and NixOS to detected distros
+ - [ADD] OpenHardwareMonitor sensor program support
+ - [ADD] Possibility to define multiple UPS_PROGRAM
+ - [ADD] UPS_NUT_LIST option
+
+ - [FIX] Fixed incorrect network usage on FreeBSD
+
+ - [UPD] SMART plugin - Smartctl --device option value setting method
+
+phpSysInfo 3.1.11
+----------------
+
+ - [ADD] Add Access-Control-Allow-Origin on XML (JSON) interface for Ajax Load PR#47
+ - [ADD] Generations Linux and SliTaz to detected distros
+ - [ADD] IPMI and LMSensors currents information
+ - [ADD] Plugin IPMIInfo - added powers and currents values
+ - [ADD] Partial support of QNX
+
+ - [FIX] Reduce execution time on Linux systems when showing load average PR#47
+
+phpSysInfo 3.1.10
+----------------
+
+ - [ADD] Zenwalk and Raspbian to detected distros
+
+ - [FIX] /etc/os-release Linux distro detection
+
 phpSysInfo 3.1.9
 ----------------
 

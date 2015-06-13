@@ -204,7 +204,7 @@ class SunOS extends OS
                             $bufe2 = preg_split("/\n/", $bufr2, -1, PREG_SPLIT_NO_EMPTY);
                             foreach ($bufe2 as $buf2) {
                                 if (preg_match('/^\s+inet6\s+([^\s\/]+)/i', $buf2, $ar_buf2)
-                                      && !preg_match('/^fe80::/i',$ar_buf2[1]))
+                                      && !preg_match('/^fe80::/i', $ar_buf2[1]))
                                     $dev->setInfo(($dev->getInfo()?$dev->getInfo().';':'').$ar_buf2[1]);
                             }
                         }
@@ -245,7 +245,7 @@ class SunOS extends OS
     private function _filesystems()
     {
         if (CommonFunctions::executeProgram('df', '-k', $df, PSI_DEBUG)) {
-            $df = preg_replace('/\n\s/m',' ', $df);
+            $df = preg_replace('/\n\s/m', ' ', $df);
             $mounts = preg_split("/\n/", $df, -1, PREG_SPLIT_NO_EMPTY);
             foreach ($mounts as $mount) {
                 $ar_buf = preg_split('/\s+/', $mount, 6);
@@ -266,7 +266,7 @@ class SunOS extends OS
                             }
                         }
                     } elseif (CommonFunctions::executeProgram('df', '-T', $dftypes, PSI_DEBUG)) {
-                        $dftypes = preg_replace('/\n\s/m',' ', $dftypes);
+                        $dftypes = preg_replace('/\n\s/m', ' ', $dftypes);
                         $mounttypes = preg_split("/\n/", $dftypes, -1, PREG_SPLIT_NO_EMPTY);
                         foreach ($mounttypes as $type) {
                             $ty_buf = preg_split("/\s+/", $type, 3);
@@ -294,6 +294,36 @@ class SunOS extends OS
     }
 
     /**
+     * Processes
+     *
+     * @return void
+     */
+    protected function _processes()
+    {
+        if (CommonFunctions::executeProgram('ps', 'aux', $bufr, PSI_DEBUG)) {
+            $lines = preg_split("/\n/", $bufr, -1, PREG_SPLIT_NO_EMPTY);
+            $processes['*'] = 0;
+            foreach ($lines as $line) {
+                if (preg_match("/^\S+\s+\d+\s+\S+\s+\S+\s+\d+\s+\d+\s+\S+\s+(\w)/", $line, $ar_buf)) {
+                    $processes['*']++;
+                    $state = $ar_buf[1];
+                    if ($state == 'O') $state = 'R'; //linux format
+                    elseif ($state == 'W') $state = 'D';
+                    elseif ($state == 'D') $state = 'd'; //invalid
+                    if (isset($processes[$state])) {
+                        $processes[$state]++;
+                    } else {
+                        $processes[$state] = 1;
+                    }
+                }
+            }
+            if ($processes['*'] > 0) {
+                $this->sys->setProcesses($processes);
+            }
+        }
+    }
+
+    /**
      * get the information
      *
      * @see PSI_Interface_OS::build()
@@ -303,9 +333,9 @@ class SunOS extends OS
     public function build()
     {
         $this->error->addError("WARN", "The SunOS version of phpSysInfo is a work in progress, some things currently don't work");
+        $this->_distro();
         $this->_hostname();
         $this->_ip();
-        $this->_distro();
         $this->_kernel();
         $this->_uptime();
         $this->_users();
@@ -314,5 +344,6 @@ class SunOS extends OS
         $this->_network();
         $this->_memory();
         $this->_filesystems();
+        $this->_processes();
     }
 }

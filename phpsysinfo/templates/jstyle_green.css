@@ -107,11 +107,11 @@ a:hover {
     cursor:pointer;
 }
 
-#pciTable,#ideTable,#scsiTable,#usbTable {
+#pciTable, #ideTable, #scsiTable, #usbTable, #tbTable {
     padding:0 30px;
 }
 
-#vitals,#network, #memory, #filesystem, #hardware, #temp, #voltage, #fan, #power, #ups {
+#vitals,#network, #memory, #filesystem, #hardware, #temp, #voltage, #fan, #power, #current, #ups {
     float:left;
     margin:10px 0 0 10px;
     _margin: 10px 5px 0 5px; /* ie6 */

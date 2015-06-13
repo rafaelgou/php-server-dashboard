@@ -60,17 +60,17 @@ class FreeBSD extends BSDCommon
      */
     private function _network()
     {
-        $dev = NULL;
+        $dev = null;
         if (CommonFunctions::executeProgram('netstat', '-nibd', $netstat, PSI_DEBUG)) {
             $lines = preg_split("/\n/", $netstat, -1, PREG_SPLIT_NO_EMPTY);
             foreach ($lines as $line) {
                 $ar_buf = preg_split("/\s+/", $line);
                 if (! empty($ar_buf[0])) {
-                    if (preg_match('/^<Link/i',$ar_buf[2])) {
+                    if (preg_match('/^<Link/i', $ar_buf[2])) {
                         $dev = new NetDevice();
                         $dev->setName($ar_buf[0]);
                         if (strlen($ar_buf[3]) < 17) { /* no Address */
-                            if (isset($ar_buf[11])) { /* Idrop column exist*/
+                            if (isset($ar_buf[11]) && (trim($ar_buf[11]) != '')) { /* Idrop column exist*/
                               $dev->setTxBytes($ar_buf[9]);
                               $dev->setRxBytes($ar_buf[6]);
                               $dev->setErrors($ar_buf[4] + $ar_buf[8]);
@@ -82,7 +82,7 @@ class FreeBSD extends BSDCommon
                               $dev->setDrops($ar_buf[10]);
                             }
                         } else {
-                            if (isset($ar_buf[12])) { /* Idrop column exist*/
+                            if (isset($ar_buf[12]) && (trim($ar_buf[12]) != '')) { /* Idrop column exist*/
                               $dev->setTxBytes($ar_buf[10]);
                               $dev->setRxBytes($ar_buf[7]);
                               $dev->setErrors($ar_buf[5] + $ar_buf[9]);
@@ -103,7 +103,7 @@ class FreeBSD extends BSDCommon
                                     $dev->setInfo(($dev->getInfo()?$dev->getInfo().';':'').$ar_buf2[1]);
                                 elseif ((preg_match('/^\s+inet6\s+([^\s%]+)\s+prefixlen/i', $buf2, $ar_buf2)
                                       || preg_match('/^\s+inet6\s+([^\s%]+)%\S+\s+prefixlen/i', $buf2, $ar_buf2))
-                                      && !preg_match('/^fe80::/i',$ar_buf2[1]))
+                                      && !preg_match('/^fe80::/i', $ar_buf2[1]))
                                     $dev->setInfo(($dev->getInfo()?$dev->getInfo().';':'').$ar_buf2[1]);
                             }
                         }
@@ -115,13 +115,18 @@ class FreeBSD extends BSDCommon
     }
 
     /**
-     * get icon name
+     * get icon name and distro extended check
      *
      * @return void
      */
     private function _distroicon()
     {
-        $this->sys->setDistributionIcon('FreeBSD.png');
+        if (extension_loaded('pfSense') && CommonFunctions::rfts('/etc/version', $version, 1, 4096, false) && (trim($version) != '')) { // pfSense detection
+            $this->sys->setDistribution('pfSense '. trim($version));
+            $this->sys->setDistributionIcon('pfSense.png');
+        } else {
+            $this->sys->setDistributionIcon('FreeBSD.png');
+        }
     }
 
     /**
@@ -138,6 +143,35 @@ class FreeBSD extends BSDCommon
     }
 
     /**
+     * Processes
+     *
+     * @return void
+     */
+    protected function _processes()
+    {
+        if (CommonFunctions::executeProgram('ps', 'aux', $bufr, PSI_DEBUG)) {
+            $lines = preg_split("/\n/", $bufr, -1, PREG_SPLIT_NO_EMPTY);
+            $processes['*'] = 0;
+            foreach ($lines as $line) {
+                if (preg_match("/^\S+\s+\d+\s+\S+\s+\S+\s+\d+\s+\d+\s+\S+\s+(\w)/", $line, $ar_buf)) {
+                    $processes['*']++;
+                    $state = $ar_buf[1];
+                    if ($state == 'L') $state = 'D'; //linux format
+                    elseif ($state == 'I') $state = 'S';
+                    if (isset($processes[$state])) {
+                        $processes[$state]++;
+                    } else {
+                        $processes[$state] = 1;
+                    }
+                }
+            }
+            if ($processes['*'] > 0) {
+                $this->sys->setProcesses($processes);
+            }
+        }
+    }
+
+    /**
      * get the information
      *
      * @see BSDCommon::build()
@@ -151,5 +185,6 @@ class FreeBSD extends BSDCommon
         $this->_distroicon();
         $this->_network();
         $this->_uptime();
+        $this->_processes();
     }
 }
