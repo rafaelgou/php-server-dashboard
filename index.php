@@ -17,7 +17,7 @@
                     </a>
                     <h4>MySQL / PostgreSQL<br/>Database Manager</h4>
                     <p>
-                        version 4.2.1<br/>
+                        version 4.2.2<br/>
                         <a href="http://adminer.org/" target="_blank">app website</a>
                     </p>
                 </div>
