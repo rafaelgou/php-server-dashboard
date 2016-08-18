@@ -5,7 +5,7 @@ phpSysInfo
 * Copyright (c), 1999-2009, Michael Cramer (bigmichi1@users.sf.net)
 * Copyright (c), 2007-2008, Audun Larsen (xqus@users.sf.net)
 * Copyright (c), 2007-2015, Erkan Valentin
-* Copyright (c), 2009-2015, Mieczyslaw Nalewaj (namiltd@users.sf.net)
+* Copyright (c), 2009-2016, Mieczyslaw Nalewaj (namiltd@users.sf.net)
 * Copyright (c), 2010-2012, Damien Roth (iysaak@users.sf.net)
 
 
@@ -20,9 +20,9 @@ CURRENT TESTED PLATFORMS
 - DragonFly
 - HP-UX
 - Darwin/OSX
-- Windows 2000 / Windows 2003 / Windows XP / Windows Vista / Windows 7 / Windows 8  / Windows 8.1
+- Windows 2000 / XP / 2003 / Vista / 2008 / 7 / 2011 / 2012 / 8 / 8.1 / 10
 - Android
-- > PHP 5.2 or later
+- > PHP 5.2 or later (partial PHP 5.1.3 compatibility)
   - With PCRE, XML, XSL, MBString and SimpleXML extension.
 
 ####Platforms currently in progress:
@@ -81,7 +81,7 @@ PLATFORM SPECIFIC ISSUES
   an authentication mechanism for the directory in the IIS admin
   interface for the directory where phpSysInfo is installed. Then you
   will be asked for an user and a password when opening the page. At this
-  point it is necassary to log in with an user that will be able to
+  point it is necessary to log in with an user that will be able to
   connect to the WMI interface. If you use the wrong user and/or password
   you might get an "ACCESS DENIED ERROR".
 
@@ -105,7 +105,7 @@ Submit a bug on SourceForge (preferred) (http://sourceforge.net/projects/phpsysi
 
 Ask for help in the forum (http://sourceforge.net/projects/phpsysinfo/)
 
-***!! If you have any problems, please set `DEBUG` to true in `phpsysinfo.ini` 
+***!! If you have any problems, please set `DEBUG` to true in `phpsysinfo.ini`
 and include any error messages in your bug report / help request !!***
 
 OTHER NOTES

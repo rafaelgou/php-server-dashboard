@@ -3,6 +3,62 @@ Changelog of phpSysInfo
 
 http://phpsysinfo.sourceforge.net/
 
+phpSysInfo 3.2.6
+----------------
+ - [UPD] jQuery 3.1.0 and jQuery 1.12.4
+ - [UPD] bootstrap 3.3.7
+ - [UPD] Swedish Translation sv.xml
+ - [UPD] Norwegian Translation no.xml
+
+ - [ADD] NeoKylin and Void to detected distros
+ - [ADD] schabau and lingruby template
+ - [ADD] DMRaid plugin - FreeBSD graid info
+ - [ADD] SNMPPInfo plugin - support for Ricoh printers
+ - [ADD] UpdateNotifier plugin - ACCESS option
+
+ - [NEW] sudo commands list
+ - [NEW] plugin Iptables - iptables rules list
+
+phpSysInfo 3.2.5
+----------------
+ - [UPD] jQuery 2.2.0 and jQuery 1.12.0
+
+ - [ADD] Show network interfaces infos for NetBSD and OpenBSD
+ - [ADD] SHOW_NETWORK_INFOS_EXPANDED option
+ - [ADD] SHOW_MEMORY_INFOS_EXPANDED option
+ - [ADD] QTS, OpenMamba and HipServ to detected distros
+ - [ADD] SNMPups - monitoring UPS via SNMP
+
+ - [NEW] reloading plugins also for frontend "bootstrap"
+ - [NEW] Network speed info on WinNT, Linux, Android, Darwin, NetBSD, OpenBSD and FreeBSD
+ - [NEW] Coretemp monitoring also on Linux
+ - [NEW] QTSsnmp - SNMP sensors monitoring for QTS Linux
+ - [NEW] Hwmon - sensors monitoring for Linux
+ - [NEW] SpeedFan - sensors monitoring for WinNT
+ - [NEW] Separate configuration sections for motherboard monitoring sensors programs
+ - [NEW] List of IP addresses of clients authorized to run
+
+phpSysInfo 3.2.4
+----------------
+ - [ADD] Solus to detected distros
+ - [ADD] Uprecords plugin - MAX_ENTRIES option - maximum number of entries to show
+
+ - [UPD] Refreshing status of all plugins for dynamic mode
+ - [UPD] bootstrap 3.3.6
+
+ - [NEW] language and template selection also for frontend "bootstrap"
+
+ - [FIX] PHP 7 class Error issues
+
+phpSysInfo 3.2.3
+----------------
+ - [UPD] jQuery 2.1.4 and jQuery 1.11.3
+ - [UPD] bootstrap 3.3.5
+
+ - [NEW] I2C devices list on Android and Linux
+
+ - [ADD] blue template
+
 phpSysInfo 3.2.2
 ----------------
  - [UPD] bootstrap 3.3.4
@@ -28,6 +84,8 @@ phpSysInfo 3.2.1
 
 phpSysInfo 3.2.0
 ----------------
+ - [UPD] jQuery 2.1.3 and jQuery 1.11.2
+
  - [NEW] Frontend "bootstrap" with Bootstrap3 and Transparency (JSON)
 
  - [ADD] Catalan Translation ca.xml
@@ -124,7 +182,7 @@ phpSysInfo 3.1.10
 phpSysInfo 3.1.9
 ----------------
 
- - [NEW] New plugin DMRaid - software raid status
+ - [NEW] plugin DMRaid - software raid status
 
  - [ADD] Calculate, Tails, SMEServer, Semplice, SolydXK, Parsix, RedFlag, Amazon, Korora, OpenMandriva, SteamOS, ROSA Enterprise Server and ROSA Desktop Fresh to detected distros
 

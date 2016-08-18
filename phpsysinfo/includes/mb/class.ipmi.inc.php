@@ -33,23 +33,23 @@ class IPMI extends Sensors
     private $_lines = array();
 
     /**
-     * fill the private content var through tcp or file access
+     * fill the private content var through command or data access
      */
     public function __construct()
     {
         parent::__construct();
-        switch (strtolower(PSI_SENSOR_ACCESS)) {
+        switch (defined('PSI_SENSOR_IPMI_ACCESS')?strtolower(PSI_SENSOR_IPMI_ACCESS):'command') {
         case 'command':
             CommonFunctions::executeProgram('ipmitool', 'sensor', $lines);
             $this->_lines = preg_split("/\n/", $lines, -1, PREG_SPLIT_NO_EMPTY);
             break;
-        case 'file':
+        case 'data':
             if (CommonFunctions::rfts(APP_ROOT.'/data/ipmi.txt', $lines)) {
                 $this->_lines = preg_split("/\n/", $lines, -1, PREG_SPLIT_NO_EMPTY);
             }
             break;
         default:
-            $this->error->addConfigError('__construct()', 'PSI_SENSOR_ACCESS');
+            $this->error->addConfigError('__construct()', 'PSI_SENSOR_IPMI_ACCESS');
             break;
         }
     }
@@ -68,11 +68,12 @@ class IPMI extends Sensors
                 $dev->setName($buffer[0]);
                 $dev->setValue($buffer[1]);
                 if ($buffer[8] != "na") $dev->setMax($buffer[8]);
+                /* incorrect events recognition
                 switch ($buffer[3]) {
                     case "nr": $dev->setEvent("Non-Recoverable"); break;
                     case "cr": $dev->setEvent("Critical"); break;
                     case "nc": $dev->setEvent("Non-Critical"); break;
-                }
+                } */
                 $this->mbinfo->setMbTemp($dev);
             }
         }
@@ -93,11 +94,12 @@ class IPMI extends Sensors
                 $dev->setValue($buffer[1]);
                 if ($buffer[5] != "na") $dev->setMin($buffer[5]);
                 if ($buffer[8] != "na") $dev->setMax($buffer[8]);
+                /* incorrect events recognition
                 switch ($buffer[3]) {
                     case "nr": $dev->setEvent("Non-Recoverable"); break;
                     case "cr": $dev->setEvent("Critical"); break;
                     case "nc": $dev->setEvent("Non-Critical"); break;
-                }
+                } */
                 $this->mbinfo->setMbVolt($dev);
             }
         }
@@ -116,16 +118,17 @@ class IPMI extends Sensors
                 $dev = new SensorDevice();
                 $dev->setName($buffer[0]);
                 $dev->setValue($buffer[1]);
-                if ($buffer[8] != "na") {
-                    $dev->setMin($buffer[8]);
-                } elseif (($buffer[5] != "na") && ($buffer[5]<$buffer[1])) { //max instead min issue
+                if ($buffer[5] != "na") {
                     $dev->setMin($buffer[5]);
+                } elseif (($buffer[8] != "na") && ($buffer[8]<$buffer[1])) { //max instead min issue
+                    $dev->setMin($buffer[8]);
                 }
+                /* incorrect events recognition
                 switch ($buffer[3]) {
                     case "nr": $dev->setEvent("Non-Recoverable"); break;
                     case "cr": $dev->setEvent("Critical"); break;
                     case "nc": $dev->setEvent("Non-Critical"); break;
-                }
+                } */
                 $this->mbinfo->setMbFan($dev);
             }
         }
@@ -145,11 +148,12 @@ class IPMI extends Sensors
                 $dev->setName($buffer[0]);
                 $dev->setValue($buffer[1]);
                 if ($buffer[8] != "na") $dev->setMax($buffer[8]);
+                /* incorrect events recognition
                 switch ($buffer[3]) {
                     case "nr": $dev->setEvent("Non-Recoverable"); break;
                     case "cr": $dev->setEvent("Critical"); break;
                     case "nc": $dev->setEvent("Non-Critical"); break;
-                }
+                } */
                 $this->mbinfo->setMbPower($dev);
             }
         }
@@ -169,11 +173,12 @@ class IPMI extends Sensors
                 $dev->setName($buffer[0]);
                 $dev->setValue($buffer[1]);
                 if ($buffer[8] != "na") $dev->setMax($buffer[8]);
+                /* incorrect events recognition
                 switch ($buffer[3]) {
                     case "nr": $dev->setEvent("Non-Recoverable"); break;
                     case "cr": $dev->setEvent("Critical"); break;
                     case "nc": $dev->setEvent("Non-Critical"); break;
-                }
+                } */
                 $this->mbinfo->setMbCurrent($dev);
             }
         }

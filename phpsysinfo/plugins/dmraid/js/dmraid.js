@@ -43,18 +43,37 @@ function dmraid_buildinfos(xml, id) {
     devsubsets = parseInt($(xml).attr("Subsets"), 10);
     devdevs = parseInt($(xml).attr("Devs"), 10);
     devspares = parseInt($(xml).attr("Spares"), 10);
-    html += "<tr><td>" + genlang(4, false, "DMRaid") + "</td><td>" + devname + "</td></tr>";
-    html += "<tr><td>" + genlang(5, false, "DMRaid") + "</td><td>" + devstatus + "</td></tr>";
-    html += "<tr><td>" + genlang(6, false, "DMRaid") + "</td><td>" + devtype + "</td></tr>";
-    html += "<tr><td>" + genlang(7, false, "DMRaid") + "</td><td>" + devsize + "</td></tr>";
-    html += "<tr><td>" + genlang(8, false, "DMRaid") + "</td><td>" + devstride + "</td></tr>";
-    html += "<tr><td>" + genlang(9, false, "DMRaid") + "</td><td>" + devsubsets + "</td></tr>";
-    html += "<tr><td>" + genlang(10, false, "DMRaid") + "</td><td>" + devdevs + "</td></tr>";
-    html += "<tr><td>" + genlang(11, false, "DMRaid") + "</td><td>" + devspares + "</td></tr>";
-    button += "<h3 style=\"cursor: pointer\" id=\"sPlugin_DMRaid_Info" + id + "\"><img src=\"./gfx/bullet_toggle_plus.png\" alt=\"plus\" style=\"vertical-align:middle;\" />" + genlang(3, false, "DMRaid") + "</h3>";
-    button += "<h3 style=\"cursor: pointer; display: none;\" id=\"hPlugin_DMRaid_Info" + id + "\"><img src=\"./gfx/bullet_toggle_minus.png\" alt=\"minus\" style=\"vertical-align:middle;\" />" + genlang(3, false, "DMRaid") + "</h3>";
-    button += "<table id=\"Plugin_DMRaid_InfoTable" + id + "\" style=\"border-spacing:0; display:none;\">" + html + "</table>";
+    html += "<tr><td>" + genlang(4, true, "DMRaid") + "</td><td>" + devname + "</td></tr>";
+    html += "<tr><td>" + genlang(5, true, "DMRaid") + "</td><td>" + devstatus + "</td></tr>";
+    html += "<tr><td>" + genlang(6, true, "DMRaid") + "</td><td>" + devtype + "</td></tr>";
+    html += "<tr><td>" + genlang(7, true, "DMRaid") + "</td><td>" + devsize + "</td></tr>";
+    if (!isNaN(devstride)) html += "<tr><td>" + genlang(8, true, "DMRaid") + "</td><td>" + devstride + "</td></tr>";
+    if (!isNaN(devsubsets)) html += "<tr><td>" + genlang(9, true, "DMRaid") + "</td><td>" + devsubsets + "</td></tr>";
+    html += "<tr><td>" + genlang(10, true, "DMRaid") + "</td><td>" + devdevs + "</td></tr>";
+    if (!isNaN(devspares)) html += "<tr><td>" + genlang(11, true, "DMRaid") + "</td><td>" + devspares + "</td></tr>";
+    button += "<h3 style=\"cursor:pointer\" id=\"sPlugin_DMRaid_Info" + id + "\"><img src=\"./gfx/bullet_toggle_plus.gif\" alt=\"plus\" title=\"\" style=\"vertical-align:middle;width:16px;\" />" + genlang(3, true, "DMRaid") + "</h3>";
+    button += "<h3 style=\"cursor:pointer; display:none;\" id=\"hPlugin_DMRaid_Info" + id + "\"><img src=\"./gfx/bullet_toggle_minus.gif\" alt=\"minus\" title=\"\" style=\"vertical-align:middle;width:16px;\" />" + genlang(3, true, "DMRaid") + "</h3>";
+    button += "<table id=\"Plugin_DMRaid_InfoTable" + id + "\" style=\"border-spacing:0; display:none;\"><tbody>" + html + "</tbody></table>";
     return button;
+}
+
+/**
+ * generate a html string with the current action on the disks
+ * @param {jQuery} xml part of the plugin-XML
+ */
+function dmraid_buildaction(xml) {
+    var html = "", name = "", time = "", tunit = "", percent = 0;
+    $("Action", xml).each(function mdstatus_getaction(id) {
+        name = $(this).attr("Name");
+        if (parseInt(name, 10) !== -1) {
+            percent = parseFloat($(this).attr("Percent"));
+            html += "<div style=\"padding-left:10px;\">";
+            html += genlang(12, true, "DMRaid") + ":&nbsp;" + name + "<br/>";
+            html += createBar(percent);
+            html += "</div>";
+        }
+    });
+    return html;
 }
 
 /**
@@ -69,8 +88,7 @@ function dmraid_diskicon(xml) {
         diskstatus = $(this).attr("Status");
         diskname = $(this).attr("Name");
         switch (diskstatus) {
-        case " ":
-        case "":
+        case "ok":
             img = "harddriveok.png";
             alt = "ok";
             break;
@@ -87,12 +105,12 @@ function dmraid_diskicon(xml) {
             alt = "fail";
             break;
         default:
-            alert("--" + diskstatus + "--");
+//            alert("--" + diskstatus + "--");
             img = "error.png";
             alt = "error";
             break;
         }
-        html += "<img class=\"plugin_dmraid_biun\" src=\"./plugins/dmraid/gfx/" + img + "\" alt=\"" + alt + "\" />";
+        html += "<img class=\"plugin_dmraid_biun\" src=\"./plugins/dmraid/gfx/" + img + "\" alt=\"" + alt + "\" title=\"\" style=\"width:60px;height:60px;\" onload=\"PNGload($(this));\" />"; //onload IE6 PNG fix
         html += "<small>" + diskname + "</small>";
         html += "</div>";
     });
@@ -107,14 +125,20 @@ function dmraid_populate(xml) {
     var htmltypes = "";
 
     $("#Plugin_DMRaidTable").empty();
+    $("#Plugin_DMRaidTable").append("<tbody>");
+
     $("Plugins Plugin_DMRaid Raid", xml).each(function dmraid_getdevice(id) {
         var htmldisks = "", htmldisklist = "", topic = "", name = "", buildedaction = "";
         name = $(this).attr("Device_Name");
         htmldisklist += dmraid_diskicon(this);
-        htmldisks += "<table style=\"width:100%;\">";
+        htmldisks += "<table style=\"width:100%;\"><tbody>";
         htmldisks += "<tr><td>" + htmldisklist + "</td></tr>";
-        htmldisks += "<tr><td>" + dmraid_buildinfos($(this), id) + "<td></tr>";
-        htmldisks += "</table>";
+        buildedaction = dmraid_buildaction($(this));
+        if (buildedaction) {
+            htmldisks += "<tr><td>" + buildedaction + "</td></tr>";
+        }
+        htmldisks += "<tr><td>" + dmraid_buildinfos($(this), id) + "</td></tr>";
+        htmldisks += "</tbody></table>";
         if (id) {
             topic = "";
         }
@@ -134,12 +158,15 @@ function dmraid_populate(xml) {
         });
         dmraid_show = true;
     });
+
+    $("#Plugin_DMRaidTable").append("</tbody>");
 }
 
 /**
  * load the xml via ajax
  */
 function dmraid_request() {
+    $("#Reload_DMRaidTable").attr("title", "reload");
     $.ajax({
         url: "xml.php?plugin=DMRaid",
         dataType: "xml",
@@ -171,6 +198,6 @@ $(document).ready(function dmraid_buildpage() {
 
     $("#Reload_DMRaidTable").click(function dmraid_reload(id) {
         dmraid_request();
-        $("#Reload_DMRaidTable").attr("title",datetime());
+        $(this).attr("title", datetime());
     });
 });
