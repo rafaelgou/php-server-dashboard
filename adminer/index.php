@@ -10,20 +10,20 @@ function adminer_object() {
     
     $plugins = array(
         // specify enabled plugins here
-//	new AdminerTableHeaderScroll,
-//	new AdminerDumpAlter,
-//        new AdminerDumpXml,
-//	new AdminerDumpZip,
-//	new AdminerDumpDate,
-//	new AdminerEditCalendar,
-//	new AdminerJsonColumn,
-//	new AdminerEnumTypes,
-//	new AdminerFileUpload("data/"),
-//	new AdminerDumpBz2,
-//	new AdminerEditTextarea,
-//	new AdminerEnumOption,
-//	new AdminerEditForeign,
-//	new AdminerDumpJson,
+	new AdminerTableHeaderScroll,
+	new AdminerDumpAlter,
+        new AdminerDumpXml,
+	new AdminerDumpZip,
+	new AdminerDumpDate,
+	new AdminerEditCalendar,
+	new AdminerJsonColumn,
+	new AdminerEnumTypes,
+	new AdminerFileUpload("data/"),
+	new AdminerDumpBz2,
+	new AdminerEditTextarea,
+	new AdminerEnumOption,
+	new AdminerEditForeign,
+	new AdminerDumpJson,
     );
     
     /* It is possible to combine customization and plugins:
@@ -37,3 +37,4 @@ function adminer_object() {
 
 // include original Adminer or Adminer Editor
 include "./adminer.php";
+

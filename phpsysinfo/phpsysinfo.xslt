@@ -20,7 +20,7 @@
                         @import url("templates/phpsysinfo.css");
                     </xsl:comment>
                 </style>
-                <link href="gfx/favicon.png" rel="shortcut icon" />
+                <link href="gfx/favicon.gif" rel="shortcut icon" />
             </head>
             <body>
                 <xsl:for-each select="$XML">
@@ -556,6 +556,33 @@
                                         </h3>
                                         <table style="border-spacing:0;"
                                             class="odd" id="tbTable"
+                                            width="100%">
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <ul
+                                                            style="margin-left:10px;">
+                                                            <xsl:for-each
+                                                                select="Device">
+                                                                <li>
+                                                                    <xsl:value-of
+                                                                        select="@Name" />
+                                                                </li>
+                                                            </xsl:for-each>
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </xsl:for-each>
+                                    <xsl:for-each select="I2C">
+                                        <h3 class="odd">
+                                            <span>
+                                                <xsl:text>I2C Devices</xsl:text>
+                                            </span>
+                                        </h3>
+                                        <table style="border-spacing:0;"
+                                            class="odd" id="i2cTable"
                                             width="100%">
                                             <tbody>
                                                 <tr>

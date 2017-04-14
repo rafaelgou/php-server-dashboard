@@ -86,6 +86,7 @@ class ThermalZone extends Sensors
                 }
             }
         } else {
+            $notwas = true;
             foreach (glob('/sys/class/thermal/thermal_zone*/') as $thermalzone) {
                 $thermalzonetemp = $thermalzone.'temp';
                 $temp = null;
@@ -94,23 +95,43 @@ class ThermalZone extends Sensors
                         $temp = $temp / 1000;
                     }
 
-                    $dev = new SensorDevice();
-                    $dev->setValue($temp);
+                    if ($temp > -40) {
+                        $dev = new SensorDevice();
+                        $dev->setValue($temp);
 
-                    $temp_type = null;
-                    if (CommonFunctions::rfts($thermalzone.'type', $temp_type, 0, 4096, false) && !is_null($temp_type) && (trim($temp_type) != "")) {
-                        $dev->setName($temp_type);
-                    }
-
-                    $temp_max = null;
-                    if (CommonFunctions::rfts($thermalzone.'trip_point_0_temp', $temp_max, 0, 4096, false) && !is_null($temp_max) && (trim($temp_max) != "") && ($temp_max > 0)) {
-                        if ($temp_max >= 1000) {
-                            $temp_max = $temp_max / 1000;
+                        $temp_type = null;
+                        if (CommonFunctions::rfts($thermalzone.'type', $temp_type, 0, 4096, false) && !is_null($temp_type) && (trim($temp_type) != "")) {
+                            $dev->setName($temp_type);
+                        } else {
+                            $dev->setName("ThermalZone");
                         }
-                        $dev->setMax($temp_max);
-                    }
 
-                    $this->mbinfo->setMbTemp($dev);
+                        $temp_max = null;
+                        if (CommonFunctions::rfts($thermalzone.'trip_point_0_temp', $temp_max, 0, 4096, false) && !is_null($temp_max) && (trim($temp_max) != "") && ($temp_max > 0)) {
+                            if ($temp_max >= 1000) {
+                                $temp_max = $temp_max / 1000;
+                            }
+                            $dev->setMax($temp_max);
+                        }
+
+                        $notwas = false;
+                        $this->mbinfo->setMbTemp($dev);
+                    }
+                }
+            }
+            if ($notwas) {
+                foreach (glob('/proc/acpi/thermal_zone/TH*/temperature') as $thermalzone) {
+                    $temp = null;
+                    if (CommonFunctions::rfts($thermalzone, $temp, 1, 4096, false) && !is_null($temp) && (trim($temp) != "")) {
+                        $dev = new SensorDevice();
+                        if (preg_match("/^\/proc\/acpi\/thermal_zone\/(.+)\/temperature$/", $thermalzone, $name)) {
+                           $dev->setName("ThermalZone ".$name[1]);
+                        } else {
+                            $dev->setName("ThermalZone");
+                        }
+                        $dev->setValue(trim(substr($temp, 23, 4)));
+                        $this->mbinfo->setMbTemp($dev);
+                    }
                 }
             }
         }

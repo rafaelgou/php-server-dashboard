@@ -57,7 +57,7 @@ class Android extends Linux
      *
      * @return void
      */
-    private function _users()
+    protected function _users()
     {
         $this->sys->setUsers(1);
     }
@@ -141,7 +141,7 @@ class Android extends Linux
      *
      * @return void
      */
-    private function _distro()
+    protected function _distro()
     {
         $buf = "";
         if (CommonFunctions::rfts('/system/build.prop', $lines, 0, 4096, false)
@@ -170,10 +170,10 @@ class Android extends Linux
     {
         if (CommonFunctions::rfts('/system/build.prop', $lines, 0, 4096, false)) {
             $buf = "";
-            if (preg_match('/^ro\.product\.manufacturer=([^\n]+)/m', $lines, $ar_buf)) {
+            if (preg_match('/^ro\.product\.manufacturer=([^\n]+)/m', $lines, $ar_buf) && (trim($ar_buf[1]) !== "unknown")) {
                 $buf .= ' '.trim($ar_buf[1]);
             }
-            if (preg_match('/^ro\.product\.model=([^\n]+)/m', $lines, $ar_buf) && (trim($buf) !== trim($ar_buf[1]))) {
+            if (preg_match('/^ro\.product\.model=([^\n]+)/m', $lines, $ar_buf) && (trim($ar_buf[1]) !== trim($buf))) {
                 $buf .= ' '.trim($ar_buf[1]);
             }
             if (preg_match('/^ro\.semc\.product\.name=([^\n]+)/m', $lines, $ar_buf)) {
@@ -236,7 +236,6 @@ class Android extends Linux
     {
         $this->_distro();
         $this->_hostname();
-        $this->_ip();
         $this->_kernel();
         $this->_machine();
         $this->_uptime();
@@ -244,6 +243,7 @@ class Android extends Linux
         $this->_cpuinfo();
         $this->_pci();
         $this->_usb();
+        $this->_i2c();
         $this->_network();
         $this->_memory();
         $this->_filesystems();

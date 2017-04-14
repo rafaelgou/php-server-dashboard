@@ -62,7 +62,7 @@ class uprecords extends PSI_Plugin
                 $result[$i]['Uptime'] = $buffer[1];
                 $result[$i]['System'] = $buffer[2];
                 //Date formating
-                $result[$i]['Bootup'] = preg_replace("/^(\S+)(\s+)/", "$1,$2", preg_replace("/^(\S+\s+\S+\s+)(\d)(\s+)/", "$1 0$2$3", $buffer[3]." GMT"));
+                $result[$i]['Bootup'] = preg_replace("/^(\S+)(\s+)/", "$1,$2", preg_replace("/^(\S+\s+\S+\s+)(\d)(\s+)/", "$1 0$2$3", trim($buffer[3])." GMT"));
             }
             $i++;
         }
@@ -78,7 +78,17 @@ class uprecords extends PSI_Plugin
                 $lines = "";
                 $oldtz=getenv("TZ");
                 putenv("TZ=GMT");
-                if (CommonFunctions::executeProgram('uprecords', '-a -w', $lines) && !empty($lines))
+                $options = "";
+                if (defined('PSI_PLUGIN_UPRECORDS_MAX_ENTRIES')) {
+                    if (PSI_PLUGIN_UPRECORDS_MAX_ENTRIES === false) {
+                        $options=" -m 0";
+                    } elseif (PSI_PLUGIN_UPRECORDS_MAX_ENTRIES === true) {
+                        $options=" -m 1";
+                    } elseif ((PSI_PLUGIN_UPRECORDS_MAX_ENTRIES > 1) && (PSI_PLUGIN_UPRECORDS_MAX_ENTRIES != 10)) {
+                        $options=" -m ".PSI_PLUGIN_UPRECORDS_MAX_ENTRIES;
+                    }
+                }
+                if (CommonFunctions::executeProgram('uprecords', '-a -w'.$options, $lines) && !empty($lines))
                     $this->_lines = preg_split("/\n/", $lines, -1, PREG_SPLIT_NO_EMPTY);
                 putenv("TZ=".$oldtz);
                 break;

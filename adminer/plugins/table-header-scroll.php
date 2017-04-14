@@ -20,7 +20,7 @@
  */
 class AdminerTableHeaderScroll
 {
-    public function head($tables)
+    public function head()
     {
         ?>
 

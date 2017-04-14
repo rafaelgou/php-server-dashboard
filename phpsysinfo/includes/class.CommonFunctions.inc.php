@@ -75,17 +75,26 @@ class CommonFunctions
             } else {
                 $arrPath = preg_split('/:/', getenv("PATH"), -1, PREG_SPLIT_NO_EMPTY);
             }
+            if (defined('PSI_ADD_PATHS') && is_string(PSI_ADD_PATHS)) {
+                if (preg_match(ARRAY_EXP, PSI_ADD_PATHS)) {
+                    $arrPath = array_merge(eval(PSI_ADD_PATHS), $arrPath); // In this order so $addpaths is before $arrPath when looking for a program
+                } else {
+                    $arrPath = array_merge(array(PSI_ADD_PATHS), $arrPath); // In this order so $addpaths is before $arrPath when looking for a program
+                }
+            }
         } else {
             array_push($arrPath, $path_parts['dirname']);
             $strProgram = $path_parts['basename'];
-        }
-        if (defined('PSI_ADD_PATHS') && is_string(PSI_ADD_PATHS)) {
-            if (preg_match(ARRAY_EXP, PSI_ADD_PATHS)) {
-                $arrPath = array_merge(eval(PSI_ADD_PATHS), $arrPath); // In this order so $addpaths is before $arrPath when looking for a program
+            if (empty($path_parts['extension'])) {
+                if (PSI_OS == 'WINNT') {
+                    $strProgram .= '.exe';
+                    $path_parts = pathinfo($strProgram);
+                }
             } else {
-                $arrPath = array_merge(array(PSI_ADD_PATHS), $arrPath); // In this order so $addpaths is before $arrPath when looking for a program
+                $strProgram .= '.'.$path_parts['extension'];
             }
         }
+
         //add some default paths if we still have no paths here
         if (empty($arrPath) && PSI_OS != 'WINNT') {
             if (PSI_OS == 'Android') {
@@ -94,61 +103,37 @@ class CommonFunctions
                 array_push($arrPath, '/bin', '/sbin', '/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/local/sbin');
             }
         }
-        // If open_basedir defined, fill the $open_basedir array with authorized paths,. (Not tested when no open_basedir restriction)
-        if ((bool) ini_get('open_basedir')) {
-            if (PSI_OS == 'WINNT') {
-                $open_basedir = preg_split('/;/', ini_get('open_basedir'), -1, PREG_SPLIT_NO_EMPTY);
-            } else {
-                $open_basedir = preg_split('/:/', ini_get('open_basedir'), -1, PREG_SPLIT_NO_EMPTY);
+
+        $exceptPath = "";
+        if ((PSI_OS == 'WINNT') && (($windir = getenv("WinDir")) !== false)) {
+            $windir = strtolower($windir);
+            foreach ($arrPath as $strPath) {
+                if ((strtolower($strPath) == $windir."\\system32") && is_dir($windir."\\SysWOW64")) {
+                    $exceptPath = $windir."\\sysnative";
+                    array_push($arrPath, $exceptPath);
+                    break;
+                }
             }
+        } elseif (PSI_OS == 'Android') {
+            $exceptPath = '/system/bin';
         }
+
         foreach ($arrPath as $strPath) {
-            // Path with trailing slash
+            // Path with and without trailing slash
             if (PSI_OS == 'WINNT') {
-                $strPathS = rtrim($strPath, "\\")."\\";
+                $strPath = rtrim($strPath, "\\");
+                $strPathS = $strPath."\\";
             } else {
-                $strPathS = rtrim($strPath, "/")."/";
+                $strPath = rtrim($strPath, "/");
+                $strPathS = $strPath."/";
             }
-            if (!((PSI_OS == 'Android') && ($strPath=='/system/bin')) //is_dir('/system/bin') Android patch
-               && !is_dir($strPath)) {
+            if (($strPath !== $exceptPath) && !is_dir($strPath)) {
                 continue;
             }
-            // To avoid "open_basedir restriction in effect" error when testing paths if restriction is enabled
-            if (isset($open_basedir)) {
-                $inBaseDir = false;
-                if (PSI_OS == 'WINNT') {
-                    foreach ($open_basedir as $openbasedir) {
-                        if (substr($openbasedir, -1)=="\\") {
-                            $str_Path = $strPathS;
-                        } else {
-                            $str_Path = $strPath;
-                        }
-                        if (stripos($str_Path, $openbasedir) === 0) {
-                            $inBaseDir = true;
-                            break;
-                        }
-                    }
-                } else {
-                    foreach ($open_basedir as $openbasedir) {
-                        if (substr($openbasedir, -1)=="/") {
-                            $str_Path = $strPathS;
-                        } else {
-                            $str_Path = $strPath;
-                        }
-                        if (strpos($str_Path, $openbasedir) === 0) {
-                            $inBaseDir = true;
-                            break;
-                        }
-                    }
-                }
-                if ($inBaseDir == false) {
-                    continue;
-                }
-            }
             if (PSI_OS == 'WINNT') {
-                $strProgrammpath = rtrim($strPath, "\\")."\\".$strProgram;
+                $strProgrammpath = $strPathS.$strProgram;
             } else {
-                $strProgrammpath = rtrim($strPath, "/")."/".$strProgram;
+                $strProgrammpath = $strPathS.$strProgram;
             }
             if (is_executable($strProgrammpath)) {
                 return $strProgrammpath;
@@ -190,14 +175,37 @@ class CommonFunctions
         $strError = '';
         $pipes = array();
         $strProgram = self::_findProgram($strProgramname);
-        $error = Error::singleton();
+        $error = PSI_Error::singleton();
         if (!$strProgram) {
             if ($booErrorRep) {
-                $error->addError('find_program('.$strProgramname.')', 'program not found on the machine');
+                $error->addError('find_program("'.$strProgramname.'")', 'program not found on the machine');
             }
 
             return false;
+        } else {
+            $strProgram = '"'.$strProgram.'"';
         }
+
+        if ((PSI_OS !== 'WINNT') && defined('PSI_SUDO_COMMANDS') && is_string(PSI_SUDO_COMMANDS)) {
+            if (preg_match(ARRAY_EXP, PSI_SUDO_COMMANDS)) {
+                $sudocommands = eval(PSI_SUDO_COMMANDS);
+            } else {
+                $sudocommands = array(PSI_SUDO_COMMANDS);
+            }
+            if (in_array($strProgramname, $sudocommands)) {
+                $sudoProgram = self::_findProgram("sudo");
+                if (!$sudoProgram) {
+                    if ($booErrorRep) {
+                        $error->addError('find_program("sudo")', 'program not found on the machine');
+                    }
+
+                    return false;
+                } else {
+                    $strProgram = '"'.$sudoProgram.'" '.$strProgram;
+                }
+            }
+        }
+
         // see if we've gotten a |, if we have we need to do path checking on the cmd
         if ($strArgs) {
             $arrArgs = preg_split('/ /', $strArgs, -1, PREG_SPLIT_NO_EMPTY);
@@ -212,12 +220,12 @@ class CommonFunctions
         $descriptorspec = array(0=>array("pipe", "r"), 1=>array("pipe", "w"), 2=>array("pipe", "w"));
         if (defined("PSI_MODE_POPEN") && PSI_MODE_POPEN === true) {
             if (PSI_OS == 'WINNT') {
-                $process = $pipes[1] = popen('"'.$strProgram.'" '.$strArgs." 2>nul", "r");
+                $process = $pipes[1] = popen($strProgram.' '.$strArgs." 2>nul", "r");
             } else {
-                $process = $pipes[1] = popen('"'.$strProgram.'" '.$strArgs." 2>/dev/null", "r");
+                $process = $pipes[1] = popen($strProgram.' '.$strArgs." 2>/dev/null", "r");
             }
         } else {
-            $process = proc_open('"'.$strProgram.'" '.$strArgs, $descriptorspec, $pipes);
+            $process = proc_open($strProgram.' '.$strArgs, $descriptorspec, $pipes);
         }
         if (is_resource($process)) {
             self::_timeoutfgets($pipes, $strBuffer, $strError);
@@ -284,10 +292,23 @@ class CommonFunctions
 
         $strFile = "";
         $intCurLine = 1;
-        $error = Error::singleton();
+        $error = PSI_Error::singleton();
         if (file_exists($strFileName)) {
             if (is_readable($strFileName)) {
+                /* default error handler */
+                if (function_exists('errorHandlerPsi')) {
+                    restore_error_handler();
+                }
+                /* fatal errors only */
+                $old_err_rep = error_reporting();
+                error_reporting(E_ERROR);
                 if ($fd = fopen($strFileName, 'r')) {
+                    /* restore error level */
+                    error_reporting($old_err_rep);
+                    /* restore error handler */
+                    if (function_exists('errorHandlerPsi')) {
+                        set_error_handler('errorHandlerPsi');
+                    }
                     while (!feof($fd)) {
                         $strFile .= fgets($fd, $intBytes);
                         if ($intLines <= $intCurLine && $intLines != 0) {
@@ -306,18 +327,24 @@ class CommonFunctions
                         }
                     }
                 } else {
+                    /* restore error level */
+                    error_reporting($old_err_rep);
+                    /* restore error handler */
+                    if (function_exists('errorHandlerPsi')) {
+                        set_error_handler('errorHandlerPsi');
+                    }
                     if ($booErrorRep) {
-                         $error->addError('fopen('.$strFileName.')', 'file can not read by phpsysinfo');
+                        $error->addError('fopen('.$strFileName.')', 'file can not read by phpsysinfo');
                     }
 
                     return false;
                 }
             } else {
-                    if ($booErrorRep) {
-                         $error->addError('fopen('.$strFileName.')', 'file permission error');
-                    }
+                if ($booErrorRep) {
+                    $error->addError('fopen('.$strFileName.')', 'file permission error');
+                }
 
-                    return false;
+                return false;
             }
         } else {
             if ($booErrorRep) {
@@ -366,7 +393,7 @@ class CommonFunctions
     public static function gdc($strPath, $booErrorRep = true)
     {
         $arrDirectoryContent = array();
-        $error = Error::singleton();
+        $error = PSI_Error::singleton();
         if (is_dir($strPath)) {
             if ($handle = opendir($strPath)) {
                 while (($strFile = readdir($handle)) !== false) {
@@ -472,8 +499,7 @@ class CommonFunctions
             foreach ($read as $r) {
                 if ($r == $pipes[1]) {
                     $out .= fread($r, 4096);
-                }
-                if ($pipe2 && ($r == $pipes[2])) {
+                } elseif (feof($pipes[1]) && $pipe2 && ($r == $pipes[2])) {//read STDERR after STDOUT
                     $err .= fread($r, 4096);
                 }
             }
@@ -505,7 +531,7 @@ class CommonFunctions
                     }
                     $arrInstance = array();
                     foreach ($arrProp as $propItem) {
-                        eval("\$value = \$objItem->".$propItem->Name.";");
+                        $value = $objItem->{$propItem->Name}; //instead exploitable eval("\$value = \$objItem->".$propItem->Name.";");
                         if (empty($strValue)) {
                             if (is_string($value)) $arrInstance[$propItem->Name] = trim($value);
                             else $arrInstance[$propItem->Name] = $value;
@@ -520,7 +546,8 @@ class CommonFunctions
                 }
             } catch (Exception $e) {
                 if (PSI_DEBUG) {
-                    $this->error->addError($e->getCode(), $e->getMessage());
+                    $error = PSI_Error::singleton();
+                    $error->addError($e->getCode(), $e->getMessage());
                 }
             }
         }
