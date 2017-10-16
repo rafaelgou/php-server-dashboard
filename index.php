@@ -59,7 +59,7 @@
                         version 2.3.11<br/>
                         <?php
                         if (!extension_loaded('mongo')) {
-                            echo "<div class=\"alert alert-danger \"><i class=\"fa fa-warning\"></i> extension not instaled!</div><br/>";
+                            echo "<div class=\"alert alert-danger \"><i class=\"fa fa-warning\"></i> extension not installed!</div><br/>";
                         }
                         ?>
                         <a href="http://genghisapp.com/" target="_blank">app website</a>
@@ -77,7 +77,7 @@
                         version 1.1.7<br/>
                         <?php
                         if (!extension_loaded('mongo')) {
-                            echo "<div class=\"alert alert-danger \"><i class=\"fa fa-warning\"></i> extension not instaled!</div><br/>";
+                            echo "<div class=\"alert alert-danger \"><i class=\"fa fa-warning\"></i> extension not installed!</div><br/>";
                         }
                         ?>
                         <a href="http://rockmongo.com/" target="_blank">app website</a>
@@ -96,7 +96,7 @@
                         if (extension_loaded('APC')) {
                             echo "version " . phpversion();
                         } else {
-                            echo "<div class=\"alert alert-danger \"><i class=\"fa fa-warning\"></i> extension not instaled!</div>";
+                            echo "<div class=\"alert alert-danger \"><i class=\"fa fa-warning\"></i> extension not installed!</div>";
                         }
                         ?><br/>
                         <a href="http://www.php.net/manual/en/book.apc.php" target="_blank">app website</a>
@@ -126,7 +126,7 @@
                             $opcache = opcache_get_configuration();
                             echo "version {$opcache['version']['version']}";
                         } else {
-                            echo "<div class=\"alert alert-danger \"><i class=\"fa fa-warning\"></i> extension not instaled!</div>";
+                            echo "<div class=\"alert alert-danger \"><i class=\"fa fa-warning\"></i> extension not installed!</div>";
                         }
                         ?><br/>
                         <a href="http://php.net/manual/pt_BR/book.opcache.php" target="_blank">OpCache website</a>
